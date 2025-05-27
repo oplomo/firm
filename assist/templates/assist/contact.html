@@ -1,0 +1,439 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ClimbUp Solutions - Contact Us{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Modern Gradient Background */
+    :root {
+        --primary-color: #3a7bd5;
+        --secondary-color: #00d2ff;
+        --accent-color: #ff7e5f;
+        --dark-color: #2c3e50;
+        --light-color: #f8f9fa;
+    }
+    
+    /* Hero Section */
+    .contact-hero {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+        padding: 6rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .contact-hero:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('{% static "images/pattern.png" %}') repeat;
+        opacity: 0.1;
+    }
+    
+    .contact-hero h1 {
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+    }
+    
+    .contact-hero .lead {
+        font-weight: 300;
+        opacity: 0.9;
+    }
+    
+    /* Contact Content Section */
+    .contact-content {
+        padding: 5rem 0;
+        background-color: var(--light-color);
+    }
+    
+    /* Form Styling */
+    .contact-form-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+    
+    .contact-form-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .contact-form-card .card-body {
+        padding: 2.5rem;
+    }
+    
+    .contact-form-card h2 {
+        color: var(--dark-color);
+        margin-bottom: 2rem;
+        font-weight: 700;
+        position: relative;
+    }
+    
+    .contact-form-card h2:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px 15px;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(58, 123, 213, 0.25);
+    }
+    
+    textarea.form-control {
+        min-height: 150px;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        border: none;
+        padding: 12px 24px;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    /* Contact Info Card */
+    .contact-info-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        height: 100%;
+        transition: transform 0.3s ease;
+    }
+    
+    .contact-info-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .contact-info-card h2 {
+        color: var(--dark-color);
+        font-weight: 700;
+        position: relative;
+        margin-bottom: 2rem;
+    }
+    
+    .contact-info-card h2:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    }
+    
+    .contact-info-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+    }
+    
+    .contact-icon {
+        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .contact-details h4 {
+        color: var(--dark-color);
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    
+    .contact-details p {
+        color: #666;
+        margin-bottom: 0;
+    }
+    
+    .social-links {
+        display: flex;
+        gap: 12px;
+    }
+    
+    .social-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #f0f0f0;
+        color: var(--dark-color);
+        transition: all 0.3s;
+    }
+    
+    .social-link:hover {
+        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        color: white;
+        transform: translateY(-3px);
+    }
+    
+    /* Map Section */
+    .map-section {
+        padding: 0;
+    }
+    
+    .map-container {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        height: 0;
+        overflow: hidden;
+    }
+    
+    .map-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 991.98px) {
+        .contact-form-card, .contact-info-card {
+            margin-bottom: 2rem;
+        }
+    }
+    
+    /* Animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .contact-form-card, .contact-info-card {
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+    
+    .contact-info-card {
+        animation-delay: 0.2s;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Contact Hero Section -->
+<section class="contact-hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-3 text-white mb-4">Get In Touch</h1>
+                <p class="lead text-light mb-0">We're here to help you on your journey to success</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Content Section -->
+<section class="contact-content">
+    <div class="container">
+        <div class="row">
+            <!-- Contact Form Column -->
+            <div class="col-lg-7 mb-5 mb-lg-0">
+                
+                
+                <div class="card contact-form-card">
+                    <div class="card-body">
+                        <h2>Send Us a Message</h2>
+                        
+                        <form method="post" class="needs-validation" novalidate>
+                            {% csrf_token %}
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_name" class="form-label">Your Name *</label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.name.errors.as_text }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_email" class="form-label">Your Email *</label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.email.errors.as_text }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="id_subject" class="form-label">Subject *</label>
+                                {{ form.subject }}
+                                {% if form.subject.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.subject.errors.as_text }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="id_message" class="form-label">Your Message *</label>
+                                {{ form.message }}
+                                {% if form.message.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.message.errors.as_text }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-4 form-check">
+                                {{ form.consent }}
+                                <label class="form-check-label" for="id_consent">
+                                    I consent to ClimbUp Solutions collecting my details through this form
+                                </label>
+                                {% if form.consent.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.consent.errors.as_text }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i> Send Message
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Info Column -->
+            <div class="col-lg-5">
+                <div class="contact-info-card p-4 p-lg-5">
+                    <h2>Contact Information</h2>
+                    
+                    <div class="contact-info-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>Our Office</h4>
+                            <p>123 Success Avenue<br>Nairobi, Kenya</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-info-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>Phone</h4>
+                            <p>+254 700 123 456<br>Mon-Fri, 8:00 AM - 5:00 PM</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-info-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>Email</h4>
+                            <p>info@climbupsolutions.com<br>support@climbupsolutions.com</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-info-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>Working Hours</h4>
+                            <p>Monday - Friday: 8:00 AM - 5:00 PM<br>
+                            Saturday: 9:00 AM - 1:00 PM<br>
+                            Sunday: Closed</p>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <h4 class="mb-3">Follow Us</h4>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Map Section -->
+<section class="map-section">
+    <div class="container-fluid p-0">
+        <div class="map-container">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.808559538281!2d36.82154831475399!3d-1.2923858359807726!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f10d664f3d4a7%3A0x9e5e3a4b6d1c1b1d!2sNairobi%20City%20Centre!5e0!3m2!1sen!2ske!4v1620000000000!5m2!1sen!2ske" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+    
+    // Add loading state to submit button
+    document.querySelector('form').addEventListener('submit', function() {
+        const btn = this.querySelector('button[type="submit"]');
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+        btn.disabled = true;
+    });
+})();
+</script>
+{% endblock %}

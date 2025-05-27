@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container text-center">
+    <h2>Processing Your Payment</h2>
+    <div class="card">
+        <div class="card-body">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <p>Please check your phone to complete the M-Pesa payment.</p>
+            <p>Transaction ID: {{ transaction.transaction_id }}</p>
+            <p>Amount: KSh {{ transaction.amount|floatformat:2 }}</p>
+            
+            <div id="payment-status" class="mt-3">
+                <p>Status: {{ transaction.get_status_display }}</p>
+            </div>
+            
+            <a href="{% url 'booking_success' appointment_id=appointment.pk %}" 
+               class="btn btn-success mt-3" id="success-btn" style="display:none;">
+                Payment Successful - Continue
+            </a>
+            
+            <a href="{% url 'process_payment' appointment_id=appointment.pk %}" 
+               class="btn btn-warning mt-3" id="retry-btn" style="display:none;">
+                Payment Failed - Try Again
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+// This would poll your server to check payment status
+// Simplified version - you might want to use AJAX or websockets
+setTimeout(function() {
+    window.location.reload();
+}, 5000); // Reload every 5 seconds to check status
+</script>
+{% endblock %}

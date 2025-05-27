@@ -1,0 +1,411 @@
+{% extends 'admin_dashboard/base.html' %}
+{% block admin_content %}
+<style>
+    /* Add Consultant Form Styles */
+    .admin-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(108, 92, 231, 0.1);
+    }
+
+    .admin-header h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2d3436;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .admin-header h1::before {
+        content: "👔";
+        margin-right: 12px;
+        font-size: 1.2rem;
+    }
+
+    /* Form Container */
+    .form-container {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* Form Layout */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    /* Form Group */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    /* Form Labels */
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #2d3436;
+    }
+
+    /* Form Inputs */
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        border-color: #6c5ce7;
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+        outline: none;
+    }
+
+    /* File Upload */
+    .file-upload {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .file-upload-input {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    .file-upload-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        border: 2px dashed #ddd;
+        border-radius: 8px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .file-upload-label:hover {
+        border-color: #6c5ce7;
+        background: rgba(108, 92, 231, 0.05);
+    }
+
+    .file-upload-label i {
+        font-size: 1.5rem;
+        color: #6c5ce7;
+        margin-bottom: 0.5rem;
+    }
+
+    .file-upload-preview {
+        display: none;
+        margin-top: 1rem;
+        text-align: center;
+    }
+
+    .file-upload-preview img {
+        max-width: 150px;
+        max-height: 150px;
+        border-radius: 8px;
+        border: 1px solid #eee;
+    }
+
+    /* Form Help Text */
+    .helptext {
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        color: #636e72;
+    }
+
+    /* Form Errors */
+    .errorlist {
+        color: #d63031;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        padding-left: 0;
+        list-style: none;
+    }
+
+    /* Form Buttons */
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #f1f1f1;
+        grid-column: 1 / -1;
+    }
+
+    .btn-submit {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(to right, #6c5ce7, #a29bfe);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(108, 92, 231, 0.2);
+    }
+
+    .btn-submit:hover {
+        background: linear-gradient(to right, #6c5ce7, #8c7ae6);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(108, 92, 231, 0.3);
+    }
+
+    .btn-cancel {
+        padding: 0.75rem 1.5rem;
+        background: white;
+        color: #636e72;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+        background: #f8f9fa;
+        border-color: #ccc;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-container {
+            padding: 1.5rem;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn-submit,
+        .btn-cancel {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="admin-header">
+    <h1>Add New Consultant</h1>
+</div>
+
+<div class="form-container">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-grid">
+            <!-- Left Column -->
+                <div>
+                    <div class="form-group">
+                        <label for="{{ form.first_name.id_for_label }}">First Name</label>
+                        {{ form.first_name }}
+                        {{ form.first_name.errors }}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+                        {{ form.last_name }}
+                        {{ form.last_name.errors }}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.email.id_for_label }}">Email</label>
+                        {{ form.email }}
+                        {{ form.email.errors }}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.generate_password.id_for_label }}">
+                            {{ form.generate_password }}
+                            {{ form.generate_password.label }}
+                        </label>
+                        {{ form.generate_password.errors }}
+                    </div>
+                    
+                    <div class="form-group" id="password-field" style="display: none;">
+                        <label for="{{ form.password.id_for_label }}">Password</label>
+                        {{ form.password }}
+                        {{ form.password.errors }}
+                    </div>
+                </div>
+                    
+                    <!-- Keep your existing fields -->
+                    <div class="form-group">
+                        <label for="{{ form.expertise.id_for_label }}">Expertise</label>
+                        {{ form.expertise }}
+                        {{ form.expertise.errors }}
+                    </div>
+                
+               
+                
+                <div class="form-group">
+                    <label for="{{ form.hourly_rate.id_for_label }}">Hourly Rate</label>
+                    <div style="position: relative;">
+                        <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #636e72;">$</span>
+                        {{ form.hourly_rate }}
+                    </div>
+                    {% if form.hourly_rate.help_text %}
+                        <span class="helptext">{{ form.hourly_rate.help_text }}</span>
+                    {% endif %}
+                    {{ form.hourly_rate.errors }}
+                </div>
+            </div>
+            
+            <!-- Right Column -->
+            <div>
+                <div class="form-group">
+                    <label for="{{ form.photo.id_for_label }}">Profile Photo</label>
+                    <div class="file-upload">
+                        <div class="file-upload-label" id="file-upload-label">
+                            <div>
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Click to upload photo</p>
+                                <small>JPEG or PNG, max 2MB</small>
+                            </div>
+                        </div>
+                        {{ form.photo }}
+                        <div class="file-upload-preview" id="file-upload-preview">
+                            <img id="image-preview" src="#" alt="Preview" style="display: none;">
+                            <button type="button" id="remove-image" class="btn-cancel" style="margin-top: 0.5rem; display: none;">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                    {% if form.photo.help_text %}
+                        <span class="helptext">{{ form.photo.help_text }}</span>
+                    {% endif %}
+                    {{ form.photo.errors }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.is_active.id_for_label }}">
+                        {{ form.is_active }}
+                        Active Consultant
+                    </label>
+                    {% if form.is_active.help_text %}
+                        <span class="helptext">{{ form.is_active.help_text }}</span>
+                    {% endif %}
+                    {{ form.is_active.errors }}
+                </div>
+            </div>
+            
+            <!-- Full Width Fields -->
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <label for="{{ form.bio.id_for_label }}">Biography</label>
+                {{ form.bio }}
+                {% if form.bio.help_text %}
+                    <span class="helptext">{{ form.bio.help_text }}</span>
+                {% endif %}
+                {{ form.bio.errors }}
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-save"></i> Save Consultant
+            </button>
+            <a href="{% url 'manage_consultants' %}" class="btn-cancel">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Image preview functionality
+        const photoInput = document.getElementById('{{ form.photo.id_for_label }}');
+        const fileUploadLabel = document.getElementById('file-upload-label');
+        const fileUploadPreview = document.getElementById('file-upload-preview');
+        const imagePreview = document.getElementById('image-preview');
+        const removeImageBtn = document.getElementById('remove-image');
+        
+        if (photoInput) {
+            photoInput.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        imagePreview.style.display = 'block';
+                        fileUploadLabel.style.display = 'none';
+                        fileUploadPreview.style.display = 'block';
+                        removeImageBtn.style.display = 'inline-block';
+                    }
+                    
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+            
+            removeImageBtn.addEventListener('click', function() {
+                photoInput.value = '';
+                imagePreview.src = '#';
+                imagePreview.style.display = 'none';
+                fileUploadLabel.style.display = 'flex';
+                fileUploadPreview.style.display = 'none';
+                removeImageBtn.style.display = 'none';
+            });
+        }
+        
+        // Hourly rate field formatting
+        const hourlyRateField = document.getElementById('{{ form.hourly_rate.id_for_label }}');
+        if (hourlyRateField) {
+            hourlyRateField.style.paddingLeft = '2rem';
+        }
+        
+        // Initialize Select2 if you're using it
+        if ($ && $.fn.select2) {
+            $('#{{ form.user.id_for_label }}').select2({
+                placeholder: "Select a user account",
+                allowClear: true
+            });
+        }
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const generateCheckbox = document.getElementById('{{ form.generate_password.id_for_label }}');
+        const passwordField = document.getElementById('password-field');
+        
+        generateCheckbox.addEventListener('change', function() {
+            passwordField.style.display = this.checked ? 'none' : 'block';
+        });
+        
+        // Initialize on page load
+        passwordField.style.display = generateCheckbox.checked ? 'none' : 'block';
+    });
+    </script>
+{% endblock %}

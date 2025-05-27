@@ -1,0 +1,62 @@
+{% extends 'consultant/base.html' %}
+
+{% block title %}My Availability{% endblock %}
+
+{% block content %}
+<div class="modal-header">
+    <h5 class="modal-title" id="{{ modal_id }}Label">
+        <i class="fas fa-plus-circle me-2"></i>
+        {% if form.instance.pk %}Edit{% else %}Add{% endif %} Availability Slot
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<form method="post" action="{% if form.instance.pk %}{% url 'add_availability' form.instance.pk %}{% else %}{% url 'add_availability' %}{% endif %}">
+    {% csrf_token %}
+    <div class="modal-body">
+        {{ form.as_p }}
+        <div id="duration-display" class="alert alert-info mt-3" style="display: none;">
+            Duration: <span id="duration-value">0</span> hours
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">{% if form.instance.pk %}Update{% else %}Add{% endif %}</button>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startTime = document.getElementById('id_start_time');
+    const endTime = document.getElementById('id_end_time');
+    const durationDisplay = document.getElementById('duration-display');
+    const durationValue = document.getElementById('duration-value');
+
+    function calculateDuration() {
+        if (startTime.value && endTime.value) {
+            const [startH, startM] = startTime.value.split(':').map(Number);
+            const [endH, endM] = endTime.value.split(':').map(Number);
+            
+            let hours = endH - startH;
+            let minutes = endM - startM;
+            
+            if (minutes < 0) {
+                hours -= 1;
+                minutes += 60;
+            }
+            
+            const duration = hours + (minutes / 60);
+            durationValue.textContent = duration.toFixed(1);
+            durationDisplay.style.display = 'block';
+        } else {
+            durationDisplay.style.display = 'none';
+        }
+    }
+
+    if (startTime && endTime) {
+        startTime.addEventListener('change', calculateDuration);
+        endTime.addEventListener('change', calculateDuration);
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,484 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Appointment Detail Styling */
+    :root {
+        --primary: #6c5ce7;
+        --primary-light: #a29bfe;
+        --secondary: #00cec9;
+        --accent: #fd79a8;
+        --dark: #2d3436;
+        --light: #f5f6fa;
+        --success: #00b894;
+        --warning: #fdcb6e;
+        --danger: #d63031;
+        --info: #0984e3;
+    }
+
+    /* Base Styles */
+    .appointment-detail-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    /* Header Section */
+    .appointment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(108, 92, 231, 0.1);
+    }
+
+    .appointment-header h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+        position: relative;
+    }
+
+    .appointment-header h1::after {
+        content: "";
+        position: absolute;
+        bottom: -12px;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(to right, var(--primary), var(--accent));
+        border-radius: 2px;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-block;
+        padding: 0.5rem 1.2rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-pending {
+        background: rgba(253, 203, 110, 0.2);
+        color: #e17055;
+        border: 1px solid rgba(253, 203, 110, 0.3);
+    }
+
+    .status-confirmed {
+        background: rgba(0, 184, 148, 0.2);
+        color: var(--success);
+        border: 1px solid rgba(0, 184, 148, 0.3);
+    }
+
+    .status-completed {
+        background: rgba(9, 132, 227, 0.2);
+        color: var(--info);
+        border: 1px solid rgba(9, 132, 227, 0.3);
+    }
+
+    .status-cancelled {
+        background: rgba(214, 48, 49, 0.2);
+        color: var(--danger);
+        border: 1px solid rgba(214, 48, 49, 0.3);
+    }
+
+    /* Appointment Card */
+    .appointment-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    /* Sections */
+    .section {
+        padding: 2rem;
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    .section:last-child {
+        border-bottom: none;
+    }
+
+    .section h2 {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .section h2::before {
+        content: "";
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background: var(--primary);
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+
+    /* Detail Rows */
+    .detail-row {
+        display: flex;
+        margin-bottom: 1.2rem;
+    }
+
+    .detail-label {
+        font-weight: 500;
+        color: #636e72;
+        width: 150px;
+        flex-shrink: 0;
+    }
+
+    .detail-value {
+        flex: 1;
+        color: var(--dark);
+    }
+
+    /* Mode Indicator */
+    .mode-indicator {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .mode-virtual {
+        background: rgba(108, 92, 231, 0.2);
+        color: var(--primary);
+        border: 1px solid rgba(108, 92, 231, 0.3);
+    }
+
+    .mode-physical {
+        background: rgba(253, 121, 168, 0.2);
+        color: var(--accent);
+        border: 1px solid rgba(253, 121, 168, 0.3);
+    }
+
+    .mode-details {
+        color: #636e72;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    /* Participants */
+    .participants {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .participant-card {
+        display: flex;
+        align-items: center;
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .participant-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .participant-card img {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 1.2rem;
+        border: 3px solid white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .user-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(to right, var(--primary), var(--primary-light));
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-right: 1.2rem;
+    }
+
+    .participant-info h3 {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #636e72;
+        margin-bottom: 0.3rem;
+    }
+
+    .participant-info p {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--dark);
+        margin: 0.2rem 0;
+    }
+
+    /* Notes Section */
+    .notes {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        line-height: 1.6;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        padding: 2rem;
+        background: #f8f9fa;
+        border-top: 1px solid #eee;
+    }
+
+    .btn-cancel, .btn-pay, .btn-back {
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-cancel {
+        background: rgba(214, 48, 49, 0.1);
+        color: var(--danger);
+        border: 1px solid rgba(214, 48, 49, 0.2);
+    }
+
+    .btn-cancel:hover {
+        background: rgba(214, 48, 49, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .btn-pay {
+        background: rgba(0, 184, 148, 0.1);
+        color: var(--success);
+        border: 1px solid rgba(0, 184, 148, 0.2);
+    }
+
+    .btn-pay:hover {
+        background: rgba(0, 184, 148, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .btn-back {
+        background: rgba(108, 92, 231, 0.1);
+        color: var(--primary);
+        border: 1px solid rgba(108, 92, 231, 0.2);
+    }
+
+    .btn-back:hover {
+        background: rgba(108, 92, 231, 0.2);
+        transform: translateY(-2px);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .appointment-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .detail-row {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .detail-label {
+            width: 100%;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .btn-cancel, .btn-pay, .btn-back {
+            width: 100%;
+        }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .appointment-card {
+        animation: fadeIn 0.5s ease forwards;
+    }
+</style>
+
+<div class="appointment-detail-container">
+    <div class="appointment-header">
+        <h1>Appointment Details</h1>
+        <span class="status-badge status-{{ appointment.status }}">
+            {{ appointment.get_status_display }}
+        </span>
+    </div>
+    
+    <div class="appointment-card">
+        <div class="section">
+            <h2>Consultation Details</h2>
+            <div class="detail-row">
+                <span class="detail-label">Date & Time:</span>
+                <span class="detail-value">
+                    <span style="font-weight: 500;">{{ appointment.start_time|date:"l, F j, Y" }}</span><br>
+                    <span style="color: #636e72;">{{ appointment.start_time|date:"g:i A" }} - {{ appointment.end_time|date:"g:i A" }}</span>
+                </span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Duration:</span>
+                <span class="detail-value">{{ appointment.duration }} minutes</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Mode:</span>
+                <span class="detail-value">
+                    <span class="mode-indicator mode-{{ appointment.mode }}">
+                        {{ appointment.get_mode_display }}
+                    </span>
+                    {% if appointment.mode == 'virtual' %}
+                        <p class="mode-details"><i class="fas fa-video" style="margin-right: 5px;"></i> Zoom link will be sent via email</p>
+                    {% else %}
+                        <p class="mode-details"><i class="fas fa-map-marker-alt" style="margin-right: 5px;"></i> Location: {{ appointment.consultant.get_office_address }}</p>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Service:</span>
+                <span class="detail-value">
+                    <span style="font-weight: 500;">{{ appointment.service.name|default:"General Consultation" }}</span>
+                    {% if appointment.service.description %}
+                        <p class="service-description" style="color: #636e72; margin-top: 0.5rem;">{{ appointment.service.description }}</p>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Participants</h2>
+            <div class="participants">
+                <div class="participant-card">
+                    <img src="{{ appointment.consultant.photo.url }}" alt="{{ appointment.consultant.user.get_full_name }}">
+                    <div class="participant-info">
+                        <h3>Consultant</h3>
+                        <p>{{ appointment.consultant.user.get_full_name }}</p>
+                        <p>{{ appointment.consultant.expertise }}</p>
+                        <p>kes-{{ appointment.consultant.hourly_rate }}/per session</p>
+                    </div>
+                </div>
+                <div class="participant-card">
+                    <div class="user-avatar">
+                        {{ appointment.client.user.get_full_name|slice:":1" }}
+                    </div>
+                    <div class="participant-info">
+                        <h3>Client</h3>
+                        <p>{{ appointment.client.user.get_full_name }}</p>
+                        <p>{{ appointment.client.user.email }}</p>
+                        <p>{{ appointment.client.phone }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if appointment.payment %}
+        <div class="section">
+            <h2>Payment Information</h2>
+            <div class="detail-row">
+                <span class="detail-label">Amount:</span>
+                <span class="detail-value">${{ appointment.payment.amount }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Method:</span>
+                <span class="detail-value">
+                    <i class="fas fa-{{ appointment.payment.method|default:'money-bill-wave' }}" style="margin-right: 5px;"></i>
+                    {{ appointment.payment.get_method_display }}
+                </span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Status:</span>
+                <span class="detail-value status-{{ appointment.payment.status }}">
+                    {{ appointment.payment.get_status_display }}
+                </span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Date:</span>
+                <span class="detail-value">{{ appointment.payment.payment_date|date:"M d, Y" }}</span>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if appointment.notes %}
+        <div class="section">
+            <h2>Additional Notes</h2>
+            <div class="notes">
+                {{ appointment.notes }}
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="action-buttons">
+            {% comment %} {% if appointment.status == 'pending' or appointment.status == 'confirmed' %}
+                <a href="#" class="btn-cancel">
+                    <i class="fas fa-times-circle" style="margin-right: 8px;"></i> Cancel Appointment
+                </a>
+            {% endif %}
+            {% if appointment.status == 'pending' and not appointment.payment.verified_by_admin %}
+                <a href="#" class="btn-pay">
+                    <i class="fas fa-credit-card" style="margin-right: 8px;"></i> Make Payment
+                </a>
+            {% endif %} {% endcomment %}
+            <a href="{% url 'user_profile' %}" class="btn-back">
+                <i class="fas fa-arrow-left" style="margin-right: 8px;"></i> Back to Profile
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Font Awesome for icons -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Cancel appointment confirmation
+    const cancelBtn = document.querySelector('.btn-cancel');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to cancel this appointment?')) {
+                window.location.href = "{% url 'home' %}";
+            }
+        });
+    }
+    
+    // Payment button handler
+    const payBtn = document.querySelector('.btn-pay');
+    if (payBtn) {
+        payBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Implement payment processing here
+            alert('Redirecting to payment gateway...');
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,329 @@
+{% extends 'admin_dashboard/base.html' %}
+{% block admin_content %}
+<style>
+    /* Modern Admin Dashboard Styles */
+    :root {
+        --primary: #4361ee;
+        --primary-light: #4cc9f0;
+        --secondary: #3a0ca3;
+        --dark: #14213d;
+        --light: #f8f9fa;
+        --gray: #adb5bd;
+        --success: #4ad66d;
+        --warning: #f8961e;
+        --danger: #ef233c;
+        --glass: rgba(255, 255, 255, 0.08);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+        --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    /* Admin Header */
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+        position: relative;
+    }
+
+    .admin-header h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        background: linear-gradient(90deg, var(--primary), var(--primary-light));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        position: relative;
+        padding-bottom: 0.5rem;
+    }
+
+    .admin-header h1::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), var(--primary-light));
+        border-radius: 2px;
+    }
+
+    /* Client Detail Card */
+    .client-detail {
+        background: white;
+        border-radius: 16px;
+        box-shadow: var(--shadow-lg);
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .client-detail::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(to bottom, var(--primary), var(--primary-light));
+    }
+
+    .detail-row {
+        display: flex;
+        margin-bottom: 1.5rem;
+        align-items: flex-start;
+    }
+
+    .detail-label {
+        flex: 0 0 180px;
+        font-weight: 600;
+        color: var(--dark);
+        font-size: 1rem;
+        opacity: 0.8;
+    }
+
+    .detail-value {
+        flex: 1;
+        font-size: 1.05rem;
+        color: var(--dark);
+        font-weight: 500;
+        padding-left: 1rem;
+        border-left: 2px solid rgba(67, 97, 238, 0.2);
+    }
+
+    /* Appointments Section */
+    .appointments-header {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin: 3rem 0 1.5rem;
+        position: relative;
+        padding-left: 1.5rem;
+    }
+
+    .appointments-header::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 8px;
+        height: 30px;
+        background: linear-gradient(to bottom, var(--primary), var(--primary-light));
+        border-radius: 4px;
+    }
+
+    /* Modern Table Design */
+    .admin-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 3rem;
+    }
+
+    .admin-table thead {
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+
+    .admin-table th {
+        color: white;
+        font-weight: 600;
+        padding: 1.2rem 1.5rem;
+        text-align: left;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+    }
+
+    .admin-table tbody tr {
+        transition: var(--transition);
+    }
+
+    .admin-table tbody tr:nth-child(even) {
+        background-color: rgba(67, 97, 238, 0.03);
+    }
+
+    .admin-table tbody tr:hover {
+        background-color: rgba(67, 97, 238, 0.08);
+        transform: translateX(4px);
+    }
+
+    .admin-table td {
+        padding: 1.2rem 1.5rem;
+        color: var(--dark);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        font-size: 0.95rem;
+    }
+
+    /* Status Badges */
+    .admin-table td:last-child {
+        position: relative;
+        padding-left: 1.8rem;
+        font-weight: 500;
+    }
+
+    .admin-table td:last-child::before {
+        content: '';
+        position: absolute;
+        left: 0.8rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--gray);
+    }
+
+    .admin-table tr[data-status="completed"] td:last-child::before {
+        background: var(--success);
+    }
+
+    .admin-table tr[data-status="pending"] td:last-child::before {
+        background: var(--warning);
+    }
+
+    .admin-table tr[data-status="cancelled"] td:last-child::before {
+        background: var(--danger);
+    }
+
+    /* Back Button */
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.8rem 1.8rem;
+        background: white;
+        color: var(--primary);
+        border: 1px solid var(--primary);
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--transition);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .btn-back:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-back::before {
+        content: '←';
+        margin-right: 8px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .detail-row {
+            flex-direction: column;
+            margin-bottom: 1.2rem;
+        }
+
+        .detail-label {
+            flex: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-value {
+            padding-left: 0;
+            border-left: none;
+            padding-bottom: 1rem;
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+
+    /* Animation */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .client-detail {
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .admin-table {
+        animation: fadeInUp 0.6s ease-out 0.2s forwards;
+        opacity: 0;
+    }
+
+    .btn-back {
+        animation: fadeInUp 0.6s ease-out 0.4s forwards;
+        opacity: 0;
+    }
+</style>
+
+<div class="admin-header">
+    <h1>Client Details</h1>
+</div>
+
+<div class="client-detail">
+    <div class="detail-row">
+        <span class="detail-label">Full Name:</span>
+        <span class="detail-value">{{ client.user.get_full_name }}</span>
+    </div>
+    <div class="detail-row">
+        <span class="detail-label">Email:</span>
+        <span class="detail-value">{{ client.user.email }}</span>
+    </div>
+    <div class="detail-row">
+        <span class="detail-label">Phone:</span>
+        <span class="detail-value">{{ client.phone }}</span>
+    </div>
+    <div class="detail-row">
+        <span class="detail-label">Date of Birth:</span>
+        <span class="detail-value">{{ client.date_of_birth|date:"M d, Y" }}</span>
+    </div>
+    {% if client.referral_details %}
+    <div class="detail-row">
+        <span class="detail-label">Referral Details:</span>
+        <span class="detail-value">{{ client.referral_details }}</span>
+    </div>
+    {% endif %}
+</div>
+
+<h2 class="appointments-header">Appointment History</h2>
+<table class="admin-table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Consultant</th>
+            <th>Service</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for appt in appointments %}
+        <tr data-status="{{ appt.status|lower }}">
+            <td>{{ appt.start_time|date:"M d, Y" }}</td>
+            <td>{{ appt.consultant.user.get_full_name }}</td>
+            <td>{{ appt.service.name|default:"-" }}</td>
+            <td>{{ appt.get_status_display }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'client_list' %}" class="btn-back">Back to Clients</a>
+{% endblock %}

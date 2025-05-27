@@ -1,0 +1,256 @@
+{% extends 'consultant/base.html' %}
+
+{% block title %}Update Profile{% endblock %}
+
+{% block content %}
+<style>
+    /* Profile Update Specific Styles */
+    .profile-update-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .profile-form-card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+    
+    .profile-form-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 1.5rem;
+    }
+    
+    .profile-form-header h5 {
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .profile-form-body {
+        padding: 2rem;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        color: #4b5563;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.15);
+    }
+    
+    .invalid-feedback {
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+    
+    .photo-upload {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    
+    .photo-preview {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        display: block;
+        margin-bottom: 1rem;
+    }
+    
+    .photo-upload-btn {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+    }
+    
+    .photo-upload-btn input[type="file"] {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+    
+    .form-check-input {
+        width: 1.2em;
+        height: 1.2em;
+        margin-top: 0.2em;
+    }
+    
+    .form-check-label {
+        margin-left: 0.5rem;
+        color: #4b5563;
+    }
+    
+    .btn-save {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border: none;
+        padding: 0.75rem 2rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+    }
+    
+    .btn-save:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+    }
+    
+    .btn-cancel {
+        border-radius: 8px;
+        padding: 0.75rem 2rem;
+        font-weight: 500;
+    }
+    
+    textarea.form-control {
+        min-height: 120px;
+    }
+    
+    @media (max-width: 768px) {
+        .profile-form-body {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<div class="profile-update-container">
+    <div class="profile-form-card">
+        <div class="profile-form-header">
+            <h5>
+                <i class="fas fa-user-edit me-2"></i>
+                Update Profile
+            </h5>
+        </div>
+        <div class="profile-form-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-4">
+                            <label for="id_expertise" class="form-label">Expertise</label>
+                            {{ form.expertise }}
+                            {% if form.expertise.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.expertise.errors }}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted">Your professional specialization</small>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="id_hourly_rate" class="form-label">Hourly Rate ($)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                {{ form.hourly_rate }}
+                            </div>
+                            {% if form.hourly_rate.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.hourly_rate.errors }}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted">Your standard consulting rate per hour</small>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="photo-upload mb-4">
+                            <label class="form-label">Profile Photo</label>
+                            <div class="d-flex align-items-center">
+                                {% if consultant.photo %}
+                                    <img src="{{ consultant.photo.url }}" class="photo-preview" id="photoPreview">
+                                {% else %}
+                                    <div class="photo-preview bg-light d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-user fa-3x text-muted"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="ms-3">
+                                    <label class="btn btn-outline-primary photo-upload-btn">
+                                        <i class="fas fa-upload me-2"></i> Choose File
+                                        {{ form.photo }}
+                                    </label>
+                                    <small class="d-block text-muted mt-2">JPG or PNG, max 2MB</small>
+                                </div>
+                            </div>
+                            {% if form.photo.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.photo.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4 form-check form-switch">
+                            {{ form.is_active }}
+                            <label class="form-check-label" for="id_is_active">Active Consultant</label>
+                            <small class="d-block text-muted mt-1">When inactive, clients won't be able to book appointments</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="id_bio" class="form-label">Professional Bio</label>
+                    {{ form.bio }}
+                    {% if form.bio.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.bio.errors }}
+                        </div>
+                    {% endif %}
+                    <small class="text-muted">Tell clients about your experience and approach</small>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mt-5">
+                    <a href="{% url 'consultant_profile' %}" class="btn btn-cancel btn-secondary">
+                        <i class="fas fa-times me-2"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-save">
+                        <i class="fas fa-save me-2"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Preview uploaded photo
+    document.getElementById('id_photo').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                let preview = document.getElementById('photoPreview');
+                if (!preview) {
+                    preview = document.createElement('img');
+                    preview.id = 'photoPreview';
+                    preview.className = 'photo-preview';
+                    document.querySelector('.photo-upload .d-flex').prepend(preview);
+                }
+                preview.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Show file name when selected
+    document.getElementById('id_photo').addEventListener('change', function() {
+        const fileName = this.files[0] ? this.files[0].name : 'No file chosen';
+        document.querySelector('.photo-upload-btn').innerHTML = 
+            `<i class="fas fa-upload me-2"></i> ${fileName}`;
+    });
+</script>
+{% endblock %}

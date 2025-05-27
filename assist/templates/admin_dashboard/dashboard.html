@@ -1,0 +1,305 @@
+{% extends 'admin_dashboard/base.html' %}
+{% block admin_content %}
+<style>
+    /* Dashboard Specific Styles */
+    .dashboard-header {
+        margin-bottom: 2.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #2d3436;
+        margin: 0;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    .dashboard-header h1::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(to right, #6c5ce7, #a29bfe);
+        border-radius: 2px;
+    }
+
+    /* Stats Cards */
+    .dashboard-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(108, 92, 231, 0.1);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(to right, #6c5ce7, #a29bfe);
+    }
+
+    .stat-card h3 {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #636e72;
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .stat-card h3 i {
+        margin-right: 10px;
+        color: #6c5ce7;
+    }
+
+    .stat-card p {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3436;
+        margin: 0;
+        line-height: 1;
+    }
+
+    /* Stats Card Icons */
+    .stat-card:nth-child(1) h3 i { color: #6c5ce7; }
+    .stat-card:nth-child(2) h3 i { color: #00b894; }
+    .stat-card:nth-child(3) h3 i { color: #fd79a8; }
+
+    /* Dashboard Sections */
+    .dashboard-sections {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(108, 92, 231, 0.1);
+    }
+
+    .dashboard-sections h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2d3436;
+        margin: 0 0 1.5rem 0;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+    }
+
+    .dashboard-sections h2 i {
+        margin-right: 10px;
+        color: #6c5ce7;
+    }
+
+    /* Table Styles */
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: white;
+    }
+
+    thead {
+        background: linear-gradient(to right, #6c5ce7, #a29bfe);
+        color: white;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    th {
+        padding: 1rem 1.25rem;
+        text-align: left;
+        font-weight: 500;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    th:first-child {
+        border-top-left-radius: 8px;
+    }
+
+    th:last-child {
+        border-top-right-radius: 8px;
+    }
+
+    td {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid #eee;
+        font-size: 0.95rem;
+        color: #2d3436;
+    }
+
+    tr:last-child td {
+        border-bottom: none;
+    }
+
+    tr:hover td {
+        background: rgba(108, 92, 231, 0.03);
+    }
+
+    /* Status Badges */
+    td:last-child {
+        font-weight: 500;
+    }
+
+    td:last-child[data-status="pending"] {
+        color: #f39c12;
+    }
+
+    td:last-child[data-status="confirmed"] {
+        color: #00b894;
+    }
+
+    td:last-child[data-status="completed"] {
+        color: #0984e3;
+    }
+
+    td:last-child[data-status="cancelled"] {
+        color: #d63031;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .dashboard-stats {
+            grid-template-columns: 1fr;
+        }
+        
+        table {
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+    }
+</style>
+
+<div class="dashboard-header">
+    <h1>Dashboard Overview</h1>
+    <div class="date-display">
+        <span id="current-date"></span>
+    </div>
+</div>
+
+<div class="dashboard-stats">
+    <div class="stat-card">
+        <h3><i class="fas fa-user-tie"></i> Total Consultants</h3>
+        <p>{{ total_consultants }}</p>
+    </div>
+    <div class="stat-card">
+        <h3><i class="fas fa-users"></i> Total Clients</h3>
+        <p>{{ total_clients }}</p>
+    </div>
+    <div class="stat-card">
+        <h3><i class="fas fa-money-bill-wave"></i> Pending Payments</h3>
+        <p>{{ pending_payments }}</p>
+    </div>
+</div>
+
+<div class="dashboard-sections">
+    <section class="upcoming-appointments">
+        <h2><i class="fas fa-calendar-check"></i> Upcoming Appointments</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Client</th>
+                    <th>Consultant</th>
+                    <th>Date/Time</th>
+                    <th>Service</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appt in upcoming_appointments %}
+                <tr>
+                    <td>{{ appt.client.user.get_full_name }}</td>
+                    <td>{{ appt.consultant.user.get_full_name }}</td>
+                    <td>{{ appt.start_time|date:"M d, Y H:i" }}</td>
+                    <td>{{ appt.service.name|default:"-" }}</td>
+                    <td data-status="{{ appt.status }}">{{ appt.get_status_display }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</div>
+
+<script>
+    // Display current date
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', options);
+    
+    // Add animation to stat cards on load
+    document.addEventListener('DOMContentLoaded', function() {
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.animation = `fadeInUp 0.5s ease forwards ${index * 0.1}s`;
+        });
+        
+        // Add animation to table rows
+        const tableRows = document.querySelectorAll('tbody tr');
+        tableRows.forEach((row, index) => {
+            row.style.opacity = '0';
+            row.style.transform = 'translateX(10px)';
+            row.style.animation = `fadeInRight 0.4s ease forwards ${index * 0.05 + 0.5}s`;
+        });
+    });
+</script>
+
+<style>
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInRight {
+        from {
+            opacity: 0;
+            transform: translateX(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .date-display {
+        background: rgba(108, 92, 231, 0.1);
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 500;
+        color: #6c5ce7;
+    }
+</style>
+{% endblock %}

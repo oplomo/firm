@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #f8f9fa; padding: 20px; text-align: center; }
+        .content { padding: 20px; }
+        .credentials { background-color: #f1f1f1; padding: 15px; border-radius: 5px; }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Welcome to Our Consulting Platform</h2>
+        </div>
+        
+        <div class="content">
+            <p>Dear {{ full_name }},</p>
+            
+            <p>Your consultant account has been created by the administrator. Below are your login credentials:</p>
+            
+            <div class="credentials">
+                <p><strong>Email:</strong> {{ email }}</p>
+                <p><strong>Password:</strong> {{ password }}</p>
+            </div>
+            
+            <p>We recommend changing your password after your first login.</p>
+            
+            <p style="margin-top: 30px;">
+                <a href="{{ login_url }}" class="button">Login to Your Account</a>
+            </p>
+            
+            <p>If you have any questions, please contact our support team.</p>
+            
+            <p>Best regards,<br>The Management Team</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="booking-container">
+    <div class="booking-header">
+        <h1>Book Consultation with {{ consultant.user.get_full_name }}</h1>
+        <p>Expertise: {{ consultant.expertise }}</p>
+        <p>Rate: kes-{{ consultant.hourly_rate }} per sesion</p>
+    </div>
+
+    <div class="booking-steps">
+        <div class="step active">1. Select Service</div>
+        <div class="step">2. Choose Time</div>
+        <div class="step">3. Confirm Details</div>
+        <div class="step">4. Make Payment</div>
+    </div>
+
+    <form method="post" class="booking-form">
+        {% csrf_token %}
+        
+        <div class="form-section">
+            <h2>Service Selection</h2>
+            {{ form.service }}
+        </div>
+
+        <div class="form-section">
+            <h2>Appointment Details</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.appointment_date.id_for_label }}">Date</label>
+                    {{ form.appointment_date }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.start_time.id_for_label }}">Start Time</label>
+                    {{ form.start_time }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.duration.id_for_label }}">Duration</label>
+                    {{ form.duration }}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Consultation Mode</h2>
+            <div class="mode-options">
+                {% for mode in form.mode %}
+                <div class="mode-option">
+                    {{ mode.tag }}
+                    <label for="{{ mode.id_for_label }}">
+                        <i class="fas fa-{% if mode.choice_label == 'Virtual Consultation' %}video{% else %}user-friends{% endif %}"></i>
+                        {{ mode.choice_label }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+       
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-lg">Continue to Payment</button>
+            <a href="{% url 'consultant_detail' consultant.pk %}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
+
+    <div class="consultant-availability">
+        <h3>Consultant's Typical Availability</h3>
+        <div class="availability-grid">
+            {% for day in consultant.availabilities.all %}
+            <div class="availability-day">
+                <strong>{{ day.day_of_week }}</strong>
+                <span>{{ day.start_time|time:"H:i" }} - {{ day.end_time|time:"H:i" }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

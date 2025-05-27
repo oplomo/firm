@@ -1,0 +1,474 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Booking Form Styling */
+    :root {
+        --primary: #6c5ce7;
+        --primary-light: #a29bfe;
+        --secondary: #00cec9;
+        --accent: #fd79a8;
+        --dark: #2d3436;
+        --light: #f5f6fa;
+        --success: #00b894;
+        --warning: #fdcb6e;
+        --danger: #d63031;
+        --info: #0984e3;
+    }
+
+    .booking-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+    h1::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(to right, var(--primary), var(--accent));
+        border-radius: 2px;
+    }
+
+    /* Consultant Info */
+    .consultant-info {
+        display: flex;
+        align-items: center;
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .consultant-photo {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        margin-right: 1.5rem;
+    }
+
+    .consultant-details h2 {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .consultant-details p {
+        color: #636e72;
+        font-size: 1rem;
+    }
+
+    /* Form Styles */
+    .appointment-form {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-section h2 {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .form-section h2::before {
+        content: "";
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background: var(--primary);
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 500;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+        outline: none;
+    }
+
+    .form-text {
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        color: #636e72;
+    }
+
+    /* Mode Details */
+    .virtual-details,
+    .physical-details {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+    }
+
+    .virtual-details p,
+    .physical-details p {
+        margin: 0;
+        color: #636e72;
+        display: flex;
+        align-items: center;
+    }
+
+    .virtual-details p i,
+    .physical-details p i {
+        margin-right: 8px;
+        color: var(--primary);
+    }
+
+    /* Payment Summary */
+    .payment-summary {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+    }
+
+    .payment-summary h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .payment-summary h3::before {
+        content: "";
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background: var(--success);
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.8rem;
+        color: #636e72;
+    }
+
+    .summary-total {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn-submit {
+        padding: 0.8rem 1.5rem;
+        background: linear-gradient(to right, var(--primary), var(--primary-light));
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(108, 92, 231, 0.2);
+    }
+
+    .btn-submit:hover {
+        background: linear-gradient(to right, var(--primary), #8c7ae6);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(108, 92, 231, 0.3);
+    }
+
+    .btn-cancel {
+        padding: 0.8rem 1.5rem;
+        background: white;
+        color: #636e72;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+        background: #f8f9fa;
+        transform: translateY(-2px);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .booking-container {
+            padding: 1rem;
+        }
+        
+        .consultant-info {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .consultant-photo {
+            margin-right: 0;
+            margin-bottom: 1rem;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn-submit,
+        .btn-cancel {
+            width: 100%;
+            text-align: center;
+        }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .appointment-form {
+        animation: fadeIn 0.5s ease forwards;
+    }
+</style>
+
+<div class="booking-container">
+    <h1>Book Appointment with {{ consultant.user.get_full_name }}</h1>
+    
+    <div class="consultant-info">
+        <img src="{{ consultant.photo.url }}" alt="{{ consultant.user.get_full_name }}" class="consultant-photo">
+        <div class="consultant-details">
+            <h2>{{ consultant.expertise }}</h2>
+            <p>kes- {{ consultant.hourly_rate }}/per session</p>
+        </div>
+    </div>
+
+    <form method="post" class="appointment-form">
+        {% csrf_token %}
+        
+        <div class="form-section">
+            <h2>Appointment Details</h2>
+            
+            <div class="form-group">
+                <label for="{{ form.service.id_for_label }}">Service</label>
+                {{ form.service }}
+                {{ form.service.errors }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.start_time.id_for_label }}">Date & Time</label>
+                {{ form.start_time }}
+                <small class="form-text">Available hours: {{ consultant.get_available_hours }}</small>
+                {{ form.start_time.errors }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.mode.id_for_label }}">Consultation Mode</label>
+                {{ form.mode }}
+                {{ form.mode.errors }}
+            </div>
+            
+            <div class="form-group virtual-details" style="display: none;">
+                <label>Virtual Meeting</label>
+                <p><i class="fas fa-video"></i> You'll receive a Zoom link via email after booking confirmation.</p>
+            </div>
+            
+            <div class="form-group physical-details" style="display: none;">
+                <label>In-Person Meeting</label>
+                <p><i class="fas fa-map-marker-alt"></i> Address: {{ consultant.get_office_address }}</p>
+            </div>
+        </div>
+        
+        <div class="payment-summary">
+            <h3>Payment Summary</h3>
+            <div class="summary-item">
+                <span>Consultation Fee:</span>
+                <span id="consultation-fee">kes 0.00</span>
+            </div>
+            <div class="summary-item">
+                <span>Duration:</span>
+                <span id="duration-display">0 minutes</span>
+            </div>
+            <div class="summary-total">
+                <span>Total Amount:</span>
+                <span id="total-amount">kes 0.00</span>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-calendar-check" style="margin-right: 8px;"></i> Confirm Booking
+            </button>
+            <a href="{% url 'consultant_detail' consultant.pk %}" class="btn-cancel">
+                <i class="fas fa-arrow-left" style="margin-right: 8px;"></i> Back
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Font Awesome for icons -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Show/hide mode-specific details
+    const modeSelect = document.getElementById('{{ form.mode.id_for_label }}');
+    const virtualDetails = document.querySelector('.virtual-details');
+    const physicalDetails = document.querySelector('.physical-details');
+    
+    function updateModeDetails() {
+        virtualDetails.style.display = modeSelect.value === 'virtual' ? 'block' : 'none';
+        physicalDetails.style.display = modeSelect.value === 'physical' ? 'block' : 'none';
+    }
+    
+    modeSelect.addEventListener('change', updateModeDetails);
+    updateModeDetails();
+    
+    // Calculate and update payment summary
+    const startTimeInput = document.getElementById('{{ form.start_time.id_for_label }}');
+    const hourlyRate = {{ consultant.hourly_rate }};
+    
+    function updatePaymentSummary() {
+        const startTime = new Date(startTimeInput.value);
+        const endTime = new Date(startTime.getTime() + 60 * 60 * 1000); // Default 1 hour
+        
+        if (!isNaN(startTime.getTime())) {
+            const duration = (endTime - startTime) / (60 * 1000); // in minutes
+            const amount = (hourlyRate * duration) / 60;
+            
+            document.getElementById('duration-display').textContent = `${duration} minutes`;
+            document.getElementById('consultation-fee').textContent = `kes-${hourlyRate.toFixed(2)}/per session`;
+            document.getElementById('total-amount').textContent = `kes-${amount.toFixed(2)}`;
+        }
+    }
+    
+    startTimeInput.addEventListener('change', updatePaymentSummary);
+});
+</script>
+
+<!-- Add this to your create_appointment.html template -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const startTimeInput = document.getElementById('{{ form.start_time.id_for_label }}');
+        let holdTimeout;
+        
+        startTimeInput.addEventListener('change', function() {
+            // Clear any existing timeout
+            if (holdTimeout) {
+                clearTimeout(holdTimeout);
+            }
+            
+            // Show a message that the slot is being held
+            const message = document.createElement('div');
+            message.className = 'slot-hold-message';
+            message.innerHTML = '<i class="fas fa-clock"></i> This time slot is being held for 30 seconds...';
+            
+            const formGroup = this.closest('.form-group');
+            formGroup.appendChild(message);
+            
+            // Set timeout to redirect if no booking is made
+            holdTimeout = setTimeout(function() {
+                window.location.href = "{% url 'consultant_detail' consultant.pk %}";
+            }, 30000); // 5 seconds
+        });
+        
+        // Clear timeout if form is submitted
+        const form = document.querySelector('.appointment-form');
+        form.addEventListener('submit', function() {
+            if (holdTimeout) {
+                clearTimeout(holdTimeout);
+            }
+        });
+        
+        // Show/hide mode details based on selection
+        const modeSelect = document.getElementById('{{ form.mode.id_for_label }}');
+        const virtualDetails = document.querySelector('.virtual-details');
+        const physicalDetails = document.querySelector('.physical-details');
+        
+        function updateModeDetails() {
+            if (modeSelect.value === 'virtual') {
+                virtualDetails.style.display = 'block';
+                physicalDetails.style.display = 'none';
+            } else if (modeSelect.value === 'physical') {
+                virtualDetails.style.display = 'none';
+                physicalDetails.style.display = 'block';
+            } else {
+                virtualDetails.style.display = 'none';
+                physicalDetails.style.display = 'none';
+            }
+        }
+        
+        modeSelect.addEventListener('change', updateModeDetails);
+        updateModeDetails(); // Initialize on page load
+    });
+    </script>
+    
+    <style>
+    .slot-hold-message {
+        background-color: #fff3cd;
+        color: #856404;
+        padding: 8px 12px;
+        border-radius: 4px;
+        margin-top: 8px;
+        font-size: 14px;
+    }
+    
+    .slot-hold-message i {
+        margin-right: 5px;
+    }
+    </style>
+{% endblock %}

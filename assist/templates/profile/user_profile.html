@@ -1,0 +1,348 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Profile Page Styling */
+    :root {
+        --primary: #6c5ce7;
+        --primary-light: #a29bfe;
+        --secondary: #00cec9;
+        --accent: #fd79a8;
+        --dark: #2d3436;
+        --light: #f5f6fa;
+        --success: #00b894;
+        --warning: #fdcb6e;
+        --danger: #d63031;
+        --info: #0984e3;
+    }
+
+    /* Base Styles */
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f8f9fa;
+        color: var(--dark);
+        line-height: 1.6;
+    }
+
+    .profile-header {
+        margin-bottom: 3rem;
+        position: relative;
+    }
+
+    .profile-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 1.5rem;
+        position: relative;
+        display: inline-block;
+    }
+
+    .profile-header h1::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(to right, var(--primary), var(--accent));
+        border-radius: 2px;
+    }
+
+    /* Stats Cards */
+    .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        border-left: 4px solid var(--primary);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card h3 {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #636e72;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-card p {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .stat-card:nth-child(1) {
+        border-left-color: var(--info);
+    }
+
+    .stat-card:nth-child(2) {
+        border-left-color: var(--success);
+    }
+
+    .stat-card:nth-child(3) {
+        border-left-color: var(--accent);
+    }
+
+    /* Profile Sections */
+    .profile-sections {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+
+    section {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    section h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+    }
+
+    section h2::before {
+        content: "";
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background: var(--primary);
+        border-radius: 50%;
+        margin-right: 12px;
+    }
+
+    /* Tables */
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    thead {
+        background: linear-gradient(to right, var(--primary), var(--primary-light));
+        color: white;
+        border-radius: 8px;
+    }
+
+    th {
+        padding: 1rem 1.5rem;
+        text-align: left;
+        font-weight: 500;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    th:first-child {
+        border-top-left-radius: 8px;
+    }
+
+    th:last-child {
+        border-top-right-radius: 8px;
+    }
+
+    td {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f1f1f1;
+        color: var(--dark);
+    }
+
+    tr:last-child td {
+        border-bottom: none;
+    }
+
+    tr:hover td {
+        background: rgba(108, 92, 231, 0.03);
+    }
+
+    /* Status Badges */
+    .status-pending {
+        color: var(--warning);
+        font-weight: 500;
+    }
+
+    .status-confirmed {
+        color: var(--success);
+        font-weight: 500;
+    }
+
+    .status-completed {
+        color: var(--info);
+        font-weight: 500;
+    }
+
+    .status-cancelled {
+        color: var(--danger);
+        font-weight: 500;
+    }
+
+    /* Action Links */
+    a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    a:hover {
+        color: var(--primary-light);
+        text-decoration: underline;
+    }
+
+    /* View Button */
+    .btn-view {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: rgba(108, 92, 231, 0.1);
+        color: var(--primary);
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .btn-view:hover {
+        background: rgba(108, 92, 231, 0.2);
+        text-decoration: none;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .stats {
+            grid-template-columns: 1fr;
+        }
+        
+        table {
+            display: block;
+            overflow-x: auto;
+        }
+        
+        .profile-header h1 {
+            font-size: 2rem;
+        }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .stat-card {
+        animation: fadeIn 0.5s ease forwards;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+
+    section {
+        animation: fadeIn 0.5s ease forwards;
+    }
+
+    section:nth-child(1) { animation-delay: 0.4s; }
+    section:nth-child(2) { animation-delay: 0.5s; }
+</style>
+
+<div class="profile-header">
+    <h1>Your Profile</h1>
+    <div class="stats">
+        <div class="stat-card">
+            <h3>Upcoming</h3>
+            <p>{{ upcoming_appointments }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Completed</h3>
+            <p>{{ completed_appointments }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Total Spent</h3>
+            <p>${{ total_spent }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="profile-sections">
+    <section class="appointments">
+        <h2>Your Appointments</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Consultant</th>
+                    <th>Service</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in appointments %}
+                <tr>
+                    <td>{{ appointment.start_time|date:"M d, Y H:i" }}</td>
+                    <td>{{ appointment.consultant.user.get_full_name }}</td>
+                    <td>{{ appointment.service.name|default:"-" }}</td>
+                    <td class="status-{{ appointment.status }}">
+                        {{ appointment.get_status_display }}
+                    </td>
+                    <td>
+                        <a href="{% url 'appointment_detail' appointment.pk %}" class="btn-view">View Details</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <section class="payments">
+        <h2>Payment History</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Appointment</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in payments %}
+                <tr>
+                    <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+                    <td>{{ payment.appointment.service.name|default:"Consultation" }}</td>
+                    <td>${{ payment.amount }}</td>
+                    <td>{{ payment.get_method_display }}</td>
+                    <td class="status-{{ payment.status }}">
+                        {{ payment.get_status_display }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</div>
+
+<!-- Font Awesome for icons -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+{% endblock %}

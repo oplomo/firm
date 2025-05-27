@@ -1,0 +1,332 @@
+{% extends 'admin_dashboard/base.html' %}
+{% block admin_content %}
+<style>
+    /* Payment Management Specific Styles */
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(9, 132, 227, 0.1);
+    }
+
+    .admin-header h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2d3436;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .admin-header h1::before {
+        content: "💰";
+        margin-right: 12px;
+        font-size: 1.2rem;
+    }
+
+    /* Stats Filters */
+    .payment-filters {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-pill {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        background: #f1f1f1;
+        color: #636e72;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .filter-pill.active {
+        background: linear-gradient(to right, #0984e3, #74b9ff);
+        color: white;
+    }
+
+    /* Table Styles */
+    .admin-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .admin-table thead {
+        background: linear-gradient(to right, #0984e3, #74b9ff);
+        color: white;
+    }
+
+    .admin-table th {
+        padding: 1rem 1.5rem;
+        text-align: left;
+        font-weight: 500;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .admin-table td {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f1f1f1;
+        color: #2d3436;
+        font-size: 0.95rem;
+    }
+
+    .admin-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .admin-table tr:hover td {
+        background: rgba(9, 132, 227, 0.03);
+    }
+
+    /* Payment Amount */
+    .payment-amount {
+        font-weight: 600;
+        color: #2d3436;
+    }
+
+    /* Status Badges */
+    .payment-status {
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .status-pending {
+        background: rgba(253, 203, 110, 0.2);
+        color: #e17055;
+    }
+
+    .status-confirmed {
+        background: rgba(0, 184, 148, 0.2);
+        color: #00b894;
+    }
+
+    .status-rejected {
+        background: rgba(214, 48, 49, 0.2);
+        color: #d63031;
+    }
+
+    /* Verify Button */
+    .btn-verify {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        background: rgba(0, 184, 148, 0.1);
+        color: #00b894;
+        border: 1px solid rgba(0, 184, 148, 0.2);
+    }
+
+    .btn-verify:hover {
+        background: rgba(0, 184, 148, 0.2);
+    }
+
+    .btn-verify i {
+        margin-right: 5px;
+        font-size: 0.8rem;
+    }
+
+    /* Payment Method Icons */
+    .payment-method {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .method-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        background: #f1f1f1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #0984e3;
+        font-size: 0.8rem;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #636e72;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #b2bec3;
+        margin-bottom: 1rem;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 992px) {
+        .admin-table {
+            display: block;
+            overflow-x: auto;
+        }
+        
+        .payment-filters {
+            flex-wrap: wrap;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .admin-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+    }
+</style>
+
+<div class="admin-header">
+    <h1>Payment Management</h1>
+    <div class="total-revenue">
+        <span class="amount">${{ total_revenue|default:"0" }}</span>
+        <span class="label">Total Revenue</span>
+    </div>
+</div>
+
+<div class="payment-filters">
+    <div class="filter-pill active">All Payments</div>
+    <div class="filter-pill">Pending</div>
+    <div class="filter-pill">Confirmed</div>
+    <div class="filter-pill">Rejected</div>
+</div>
+
+{% if payments %}
+<table class="admin-table">
+    <thead>
+        <tr>
+            <th>Appointment ID</th>
+            <th>Client</th>
+            <th>Consultant</th>
+            <th>Amount</th>
+            <th>Method</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for payment in payments %}
+        <tr>
+            <td>#{{ payment.appointment.id }}</td>
+            <td>{{ payment.appointment.client.user.get_full_name }}</td>
+            <td>{{ payment.appointment.consultant.user.get_full_name }}</td>
+            <td class="payment-amount">${{ payment.amount }}</td>
+            <td>
+                <div class="payment-method">
+                    <div class="method-icon">
+                        {% if payment.method == 'mpesa' %}
+                        <i class="fas fa-mobile-alt"></i>
+                        {% else %}
+                        <i class="fas fa-university"></i>
+                        {% endif %}
+                    </div>
+                    {{ payment.get_method_display }}
+                </div>
+            </td>
+            <td>
+                <span class="payment-status status-{{ payment.status }}">
+                    {{ payment.get_status_display }}
+                </span>
+            </td>
+            <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+            <td>
+                {% if payment.status == 'pending' %}
+                <a href="{% url 'verify_payment' payment.id %}" class="btn-verify">
+                    <i class="fas fa-check-circle"></i> Verify
+                </a>
+                {% else %}
+                <span class="text-muted">Verified</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="empty-state">
+    <i class="fas fa-money-bill-wave"></i>
+    <h3>No Payment Records</h3>
+    <p>There are no payment records available yet.</p>
+</div>
+{% endif %}
+
+<script>
+    // Add animation to table rows
+    document.addEventListener('DOMContentLoaded', function() {
+        const tableRows = document.querySelectorAll('.admin-table tbody tr');
+        tableRows.forEach((row, index) => {
+            row.style.opacity = '0';
+            row.style.transform = 'translateX(20px)';
+            row.style.animation = `fadeInRight 0.4s ease forwards ${index * 0.05}s`;
+        });
+
+        // Filter pills functionality
+        const filterPills = document.querySelectorAll('.filter-pill');
+        filterPills.forEach(pill => {
+            pill.addEventListener('click', function() {
+                filterPills.forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+                // Here you would add filtering logic
+            });
+        });
+    });
+</script>
+
+<style>
+    @keyframes fadeInRight {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .total-revenue {
+        text-align: right;
+    }
+    
+    .total-revenue .amount {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0984e3;
+    }
+    
+    .total-revenue .label {
+        font-size: 0.85rem;
+        color: #636e72;
+    }
+    
+    .text-muted {
+        color: #b2bec3 !important;
+        font-size: 0.85rem;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h2>Complete Your Payment</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Appointment Details</h5>
+            <p>Consultant: {{ appointment.consultant.user.get_full_name }}</p>
+            <p>Date: {{ appointment.start_time|date:"F j, Y" }}</p>
+            <p>Time: {{ appointment.start_time|time:"H:i" }}</p>
+            <p>Amount: KSh {{ payment.amount|floatformat:2 }}</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="phone_number">M-Pesa Phone Number</label>
+                    <input type="text" class="form-control" id="phone_number" 
+                           name="phone_number" value="{{ request.user.client_profile.phone }}"
+                           placeholder="e.g. 254712345678" required>
+                    <small class="form-text text-muted">Enter your M-Pesa registered phone number with country code (254...)</small>
+                </div>
+                <button type="submit" class="btn btn-primary">Pay via M-Pesa</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

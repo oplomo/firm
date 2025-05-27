@@ -1,0 +1,334 @@
+{% extends 'consultant/base.html' %}
+
+{% block title %}My Availability{% endblock %}
+
+{% block content %}
+
+<style>
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .modal.show {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 1;
+    }
+    
+    .modal-content {
+        background-color: white;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        transform: translateY(-20px);
+        transition: transform 0.3s ease;
+    }
+    
+    .modal.show .modal-content {
+        transform: translateY(0);
+    }
+    
+    .modal-header {
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .modal-body {
+        padding: 1rem;
+    }
+    
+    .modal-footer {
+        padding: 1rem;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+    
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #666;
+    }
+    
+    /* Table Styles */
+    .availability-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .availability-table th, 
+    .availability-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .availability-table th {
+        font-weight: 600;
+        background-color: #f8f9fa;
+    }
+    
+    /* Badge Styles */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.35em 0.65em;
+        border-radius: 50px;
+        font-size: 0.875em;
+        font-weight: 500;
+    }
+    
+    .badge-light {
+        background-color: #f8f9fa;
+        color: #212529;
+    }
+    
+    .badge-peak {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .badge-normal {
+        background-color: #e2e3e5;
+        color: #383d41;
+    }
+    
+    /* Button Styles */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.375rem 0.75rem;
+        border-radius: 4px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .btn-outline-primary {
+        border: 1px solid #4361ee;
+        color: #4361ee;
+        background: transparent;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: #4361ee;
+        color: white;
+    }
+    
+    .btn-outline-danger {
+        border: 1px solid #dc3545;
+        color: #dc3545;
+        background: transparent;
+    }
+    
+    .btn-outline-danger:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .btn-primary {
+        background-color: #4361ee;
+        color: white;
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        background-color: #3a56d4;
+    }
+    
+    /* Empty State */
+    .empty-availability {
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .empty-availability i {
+        font-size: 3rem;
+        color: #6c757d;
+        margin-bottom: 1rem;
+    }
+</style>
+
+<div class="availability-container">
+    <div class="availability-card">
+        <div class="availability-header">
+            <h5>
+                <i class="fas fa-clock me-2"></i>
+                My Availability
+            </h5>
+            <button class="add-availability-btn" onclick="openModal('addAvailabilityModal')">
+                <i class="fas fa-plus me-2"></i>
+                Add Availability
+            </button>
+        </div>
+        
+        <div class="card-body">
+            {% if availabilities %}
+                <div class="table-responsive">
+                    <table class="availability-table">
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Duration</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for availability in availabilities %}
+                                <tr>
+                                    <td><strong>{{ availability.get_day_of_week_display }}</strong></td>
+                                    <td>
+                                        <span class="badge badge-light">
+                                            <i class="fas fa-clock me-1"></i>
+                                            {{ availability.start_time|time:"H:i" }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-light">
+                                            <i class="fas fa-clock me-1"></i>
+                                            {{ availability.end_time|time:"H:i" }}
+                                        </span>
+                                    </td>
+                                    <td>{{ availability.duration_hours }} hours</td>
+                                    <td>
+                                        {% if availability.is_peak_hour %}
+                                            <span class="badge badge-peak">
+                                                <i class="fas fa-star me-1"></i>
+                                                Peak Hour
+                                            </span>
+                                        {% else %}
+                                            <span class="badge badge-normal">
+                                                <i class="fas fa-clock me-1"></i>
+                                                Standard
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-availability">
+                    <i class="fas fa-calendar-times"></i>
+                    <h4 class="mb-3">No Availability Set</h4>
+                    <p class="text-muted mb-4">Add your available time slots to allow clients to book appointments with you.</p>
+                    <button class="btn btn-primary" onclick="openModal('addAvailabilityModal')">
+                        <i class="fas fa-plus me-2"></i> Add First Availability Slot
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Add Availability Modal -->
+<div class="modal" id="addAvailabilityModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">
+                <i class="fas fa-plus-circle me-2"></i>
+                Add Availability
+            </h5>
+            <button type="button" class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <form method="post" action="{% url 'availability_create' %}">
+            {% csrf_token %}
+            <div class="modal-body">
+                {{ form.as_p }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add Availability</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Container for Dynamic Modals -->
+<div id="modals-container"></div>
+
+<script>
+    // Modal functions
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeModal() {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            modal.classList.remove('show');
+        });
+        document.body.style.overflow = '';
+    }
+    
+    // Close modal when clicking outside content
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+            closeModal();
+        }
+    });
+    
+    // Dynamic modal loading
+    function openEditAvailabilityModal(availabilityId) {
+        const modalId = `editAvailabilityModal${availabilityId}`;
+        
+        if (!document.getElementById(modalId)) {
+            fetch(`/availability/${availabilityId}/edit/modal/`)
+                .then(response => response.text())
+                .then(html => {
+                    const container = document.getElementById('modals-container');
+                    container.innerHTML += html;
+                    openModal(modalId);
+                });
+        } else {
+            openModal(modalId);
+        }
+    }
+    
+    function openDeleteAvailabilityModal(availabilityId) {
+        const modalId = `deleteAvailabilityModal${availabilityId}`;
+        
+        if (!document.getElementById(modalId)) {
+            fetch(`/availability/${availabilityId}/delete/modal/`)
+                .then(response => response.text())
+                .then(html => {
+                    const container = document.getElementById('modals-container');
+                    container.innerHTML += html;
+                    openModal(modalId);
+                });
+        } else {
+            openModal(modalId);
+        }
+    }
+</script>
+{% endblock %}

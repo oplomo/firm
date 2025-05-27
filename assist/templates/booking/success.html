@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="booking-success-container">
+    <div class="success-icon">
+        <i class="fas fa-check-circle"></i>
+    </div>
+    
+    <h1>Appointment Booked Successfully!</h1>
+    
+    <div class="appointment-details">
+        <p><strong>Consultant:</strong> {{ appointment.consultant.user.get_full_name }}</p>
+        <p><strong>Date & Time:</strong> {{ appointment.start_time|date:"F j, Y H:i" }}</p>
+        <p><strong>Service:</strong> {{ appointment.service.name|default:"General Consultation" }}</p>
+        <p><strong>Mode:</strong> {{ appointment.get_mode_display }}</p>
+        
+        {% if appointment.mode == 'virtual' %}
+        <div class="meeting-link">
+            <p><strong>Google Meet Link:</strong> <a href="{{ appointment.meet_link }}" target="_blank">Join Meeting</a></p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="actions">
+        <a href="{% url 'appointment_detail' appointment.pk %}" class="btn btn-primary">
+            View Appointment Details
+        </a>
+        <a href="{% url 'home' %}" class="btn btn-secondary">
+            Back to home page
+        </a>
+    </div>
+</div>
+{% endblock %}

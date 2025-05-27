@@ -1,0 +1,721 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ClimbUp Solutions - Elevate Your Potential{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section with Background Image -->
+<section class="hero-section" style="background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{% static 'images/hro.png' %}');">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Elevate Your Potential with ClimbUp Solutions</h1>
+            <p class="lead">Expert consultancy services designed to help you reach new heights in your personal and professional journey</p>
+            <div class="cta-buttons">
+                <a href="{% url 'services' %}" class="btn btn-primary btn-lg">Explore Services</a>
+                <a href="{% url 'consultants' %}" class="btn btn-outline-light btn-lg">Meet Our Experts</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="about-section py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <img src="{% static 'images/hero-bg.png' %}" alt="Our team working together" class="img-fluid rounded shadow">
+            </div>
+            <div class="col-lg-6">
+                <h2 class="section-title">Your Ascent Begins Here</h2>
+                <p>At ClimbUp Solutions, we believe every individual and organization has untapped potential waiting to be discovered. Our team of expert consultants provides personalized guidance to help you navigate challenges and achieve your goals.</p>
+                <p>With years of experience across diverse industries, we've developed proven methodologies that deliver measurable results. Whether you're looking for career guidance, business strategy, or personal development, we have the expertise to support your journey.</p>
+                <div class="achievements mt-4">
+                    <div class="achievement-item">
+                        <span class="achievement-number">500+</span>
+                        <span class="achievement-text">Clients Empowered</span>
+                    </div>
+                    <div class="achievement-item">
+                        <span class="achievement-number">95%</span>
+                        <span class="achievement-text">Success Rate</span>
+                    </div>
+                    <div class="achievement-item">
+                        <span class="achievement-number">50+</span>
+                        <span class="achievement-text">Expert Consultants</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Section with Background Image -->
+<section class="services-section py-5">
+
+    <div class="container">
+        <h2 class="section-title text-center mb-5">Our Consultancy Services</h2>
+        <div class="row">
+            {% for service in services %}
+            <div class="col-md-4 mb-4">
+                <div class="card service-card h-100">
+                    <div class="card-icon">
+                        <i class="{{ service.icon_class }}"></i>
+                    </div>
+                    <div class="card-body">
+                        <h3>{{ service.name }}</h3>
+                        <p>{{ service.description|truncatewords:20 }}</p>
+                    </div>
+                   
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'services' %}" class="btn btn-primary">View All Services</a>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Consultants Section -->
+<section class="consultants-section py-5 bg-light">
+    <div class="container">
+        <h2 class="section-title text-center mb-5">Meet Our Expert Consultants</h2>
+        <div class="row">
+            {% for consultant in featured_consultants %}
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card consultant-card h-100">
+                    <div class="consultant-image">
+                        {% if consultant.photo %}
+                        <img src="{{ consultant.photo.url }}" class="card-img-top" alt="{{ consultant.user.get_full_name }}">
+                    {% else %}
+                        <img src="{% static 'images/consultant-placeholder.jpg' %}" class="card-img-top" alt="Consultant placeholder">
+                    {% endif %}
+
+                        <div class="expertise-badge">{{ consultant.expertise|truncatewords:2 }}</div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="consultant-name">{{ consultant.user.get_full_name }}</h3>
+                        <p class="consultant-bio">{{ consultant.bio|truncatewords:15 }}</p>
+                        <div class="consultant-rate">
+                            <span>kes-{{ consultant.hourly_rate }} per session</span>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a href="{% url "create_appointment" consultant.id %}" class="btn btn-sm btn-primary">Book Now</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'consultants' %}" class="btn btn-primary">View All Consultants</a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials-section py-5" style="background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/testimonial-bg.jpg' %}');">
+    <div class="container">
+        <h2 class="section-title text-center text-white mb-5">Success Stories</h2>
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        {% for testimonial in testimonials %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                            <div class="testimonial-card">
+                                <div class="testimonial-content">
+                                    <p class="testimonial-text">"{{ testimonial.content }}"</p>
+                                    <div class="testimonial-author">
+                                        <img src="{% if testimonial.client.user.client_profile.photo %}{{ testimonial.client.user.client_profile.photo.url }}{% else %}{% static 'images/client-placeholder.jpg' %}{% endif %}" alt="{{ testimonial.client.user.get_full_name }}" class="author-image">
+                                        <div class="author-info">
+                                            <h4>{{ testimonial.client.user.get_full_name }}</h4>
+                                            <p>{{ testimonial.client.user.client_profile.company|default:"Happy Client" }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="section-title mb-4">Ready to Start Your Journey?</h2>
+        <p class="lead mb-5">Take the first step toward achieving your goals with ClimbUp Solutions</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url "consultants" %}" class="btn btn-light btn-lg">Book a Consultation</a>
+            <a href="{% url 'contact' %}" class="btn btn-outline-light btn-lg">Contact Us</a>
+        </div>
+    </div>
+</section>
+
+
+
+
+<style>
+    /* Global Styles */
+    :root {
+        --primary-color: #3a86ff;
+        --secondary-color: #8338ec;
+        --accent-color: #ff006e;
+        --dark-color: #1a1a2e;
+        --light-color: #f8f9fa;
+        --text-color: #333;
+        --text-light: #6c757d;
+        --transition: all 0.3s ease;
+    }
+    
+    body {
+        font-family: 'Poppins', sans-serif;
+        color: var(--text-color);
+        line-height: 1.6;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+    }
+    
+    .section-title {
+        position: relative;
+        margin-bottom: 2rem;
+        padding-bottom: 0.5rem;
+        color: var(--dark-color);
+    }
+    
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        border-radius: 3px;
+    }
+    
+    .text-center .section-title:after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    /* Hero Section - Improved Background */
+    .hero-section {
+        min-height: 90vh;
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        display: flex;
+        align-items: center;
+        color: white;
+        text-align: center;
+        padding: 2rem 0;
+        position: relative;
+        background-repeat: no-repeat;
+        image-rendering: -webkit-optimize-contrast;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(58, 134, 255, 0.7), rgba(131, 56, 236, 0.7));
+        z-index: 1;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 800px;
+        margin: 0 auto;
+        animation: fadeInUp 1s ease;
+    }
+    
+    .hero-content h1 {
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+        text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    }
+    
+    .hero-content .lead {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    }
+    
+    .cta-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: var(--transition);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .btn-primary:hover {
+        background-color: #2a75e6;
+        border-color: #2a75e6;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .btn-outline-light:hover {
+        background-color: rgba(255,255,255,0.1);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .btn-lg {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+    }
+    
+    /* About Section */
+    .about-section {
+        background-color: white;
+    }
+    
+    .about-section img {
+        transition: var(--transition);
+    }
+    
+    .about-section img:hover {
+        transform: scale(1.02);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    
+    .achievements {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .achievement-item {
+        text-align: center;
+        flex: 1;
+        min-width: 120px;
+        padding: 1rem;
+        background: linear-gradient(135deg, rgba(58,134,255,0.1), rgba(131,56,236,0.1));
+        border-radius: 10px;
+        transition: var(--transition);
+    }
+    
+    .achievement-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+    
+    .achievement-number {
+        display: block;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        line-height: 1;
+    }
+    
+    .achievement-text {
+        font-size: 0.9rem;
+        color: var(--text-light);
+    }
+    
+    /* Services Section - Improved Background */
+    .services-section {
+        background-image: linear-gradient(135deg, #6a11cb 0%, #2575fc 25%, #ff6a00 50%, #f9d423 75%, #00c9a7 100%);
+        position: relative;
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        padding: 5rem 0;
+        background-repeat: no-repeat;
+    }
+    
+    
+    .services-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        background: rgba(0, 0, 0, 0.3);
+    }
+    
+    .services-section .container {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .service-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: var(--transition);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        text-align: center;
+        padding: 1.5rem;
+    }
+    
+    .service-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    
+    .card-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border-radius: 50%;
+        font-size: 2rem;
+    }
+    
+    .service-card h3 {
+        color: var(--dark-color);
+        margin-bottom: 1rem;
+    }
+    
+    .service-card p {
+        color: var(--text-light);
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn-outline-primary {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    /* Consultants Section */
+    .consultant-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: var(--transition);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .consultant-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    
+    .consultant-image {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .consultant-image img {
+        transition: var(--transition);
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+    }
+    
+    .consultant-card:hover .consultant-image img {
+        transform: scale(1.05);
+    }
+    
+    .expertise-badge {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .consultant-name {
+        color: var(--dark-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .consultant-bio {
+        color: var(--text-light);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    
+    .consultant-rate {
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+    
+    /* Testimonials Section - Improved Background */
+    .testimonials-section {
+        position: relative;
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        padding: 5rem 0;
+        color: white;
+        background-repeat: no-repeat;
+        image-rendering: -webkit-optimize-contrast;
+    }
+    
+    .testimonials-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(58, 134, 255, 0.8), rgba(131, 56, 236, 0.8));
+        z-index: 1;
+    }
+    
+    .testimonials-section .container {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .testimonial-card {
+        background-color: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 1rem;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .testimonial-text {
+        font-size: 1.1rem;
+        font-style: italic;
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+    
+    .testimonial-text:before,
+    .testimonial-text:after {
+        content: '"';
+        font-size: 2rem;
+        color: rgba(255,255,255,0.3);
+        position: absolute;
+    }
+    
+    .testimonial-text:before {
+        top: -1rem;
+        left: -1rem;
+    }
+    
+    .testimonial-text:after {
+        bottom: -2rem;
+        right: -1rem;
+    }
+    
+    .testimonial-author {
+        display: flex;
+        align-items: center;
+    }
+    
+    .author-image {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 1rem;
+        border: 3px solid rgba(255,255,255,0.3);
+    }
+    
+    .author-info h4 {
+        margin-bottom: 0.2rem;
+    }
+    
+    .author-info p {
+        opacity: 0.8;
+        font-size: 0.9rem;
+        margin-bottom: 0;
+    }
+    
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 1;
+    }
+    
+    .carousel-control-prev {
+        left: -50px;
+    }
+    
+    .carousel-control-next {
+        right: -50px;
+    }
+    
+    /* CTA Section */
+    .cta-section {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    }
+    
+    .cta-section .section-title {
+        color: white;
+    }
+    
+    .cta-section .section-title:after {
+        background: white;
+    }
+    
+    .cta-section .lead {
+        font-size: 1.25rem;
+        opacity: 0.9;
+    }
+    
+    .btn-light {
+        background-color: white;
+        color: var(--primary-color);
+    }
+    
+    .btn-light:hover {
+        background-color: rgba(255,255,255,0.9);
+        color: var(--primary-color);
+    }
+    
+    .btn-outline-light:hover {
+        background-color: rgba(255,255,255,0.1);
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Responsive Adjustments */
+    @media (min-width: 992px) {
+        /* Slightly lighter overlays on desktop */
+        .hero-section::before {
+            background: linear-gradient(135deg, rgba(58, 134, 255, 0.6), rgba(131, 56, 236, 0.6));
+        }
+        
+        .services-section::before {
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        .testimonials-section::before {
+            background: linear-gradient(135deg, rgba(58, 134, 255, 0.7), rgba(131, 56, 236, 0.7));
+        }
+    }
+    
+    @media (max-width: 992px) {
+        .hero-content h1 {
+            font-size: 2.5rem;
+        }
+        
+        .hero-content .lead {
+            font-size: 1.25rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .hero-section {
+            min-height: 80vh;
+        }
+        
+        .about-section .row {
+            flex-direction: column-reverse;
+        }
+        
+        .about-section img {
+            margin-bottom: 2rem;
+        }
+        
+        .achievement-item {
+            min-width: 100px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .hero-content h1 {
+            font-size: 2rem;
+        }
+        
+        .hero-content .lead {
+            font-size: 1.1rem;
+        }
+        
+        .cta-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn {
+            width: 100%;
+            max-width: 250px;
+            margin-bottom: 0.5rem;
+        }
+        
+    }
+</style>
+<script>
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+    
+    // Initialize carousel
+    document.addEventListener('DOMContentLoaded', function() {
+        var testimonialCarousel = new bootstrap.Carousel(document.getElementById('testimonialCarousel'), {
+            interval: 5000,
+            pause: 'hover'
+        });
+    });
+</script>
+{% endblock %}

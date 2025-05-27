@@ -1,0 +1,316 @@
+{% extends 'admin_dashboard/base.html' %}
+{% block admin_content %}
+<style>
+    /* Client Management Specific Styles */
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(253, 121, 168, 0.1);
+    }
+
+    .admin-header h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2d3436;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .admin-header h1::before {
+        content: "👥";
+        margin-right: 12px;
+        font-size: 1.2rem;
+    }
+
+    /* Client Stats */
+    .client-stats {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .stat-badge i {
+        color: #fd79a8;
+    }
+
+    /* Table Styles */
+    .admin-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .admin-table thead {
+        background: linear-gradient(to right, #fd79a8, #ff9ff3);
+        color: white;
+    }
+
+    .admin-table th {
+        padding: 1rem 1.5rem;
+        text-align: left;
+        font-weight: 500;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .admin-table td {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #f1f1f1;
+        color: #2d3436;
+    }
+
+    .admin-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .admin-table tr:hover td {
+        background: rgba(253, 121, 168, 0.03);
+    }
+
+    /* Client Avatar */
+    .client-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(to right, #fd79a8, #ff9ff3);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-right: 12px;
+    }
+
+    .client-info {
+        display: flex;
+        align-items: center;
+    }
+
+    /* View Button */
+    .btn-view {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        background: rgba(108, 92, 231, 0.1);
+        color: #6c5ce7;
+        border: 1px solid rgba(108, 92, 231, 0.2);
+    }
+
+    .btn-view:hover {
+        background: rgba(108, 92, 231, 0.2);
+    }
+
+    .btn-view i {
+        margin-right: 5px;
+        font-size: 0.8rem;
+    }
+
+    /* Age Badge */
+    .age-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        background: rgba(253, 203, 110, 0.2);
+        color: #e17055;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #636e72;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #b2bec3;
+        margin-bottom: 1rem;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 992px) {
+        .admin-table {
+            display: block;
+            overflow-x: auto;
+        }
+        
+        .client-stats {
+            flex-wrap: wrap;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .admin-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .client-info {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .client-avatar {
+            margin-right: 0;
+            margin-bottom: 8px;
+        }
+    }
+</style>
+
+<div class="admin-header">
+    <h1>Client Management</h1>
+    <div class="total-clients">
+        <span class="count">{{ clients.count }}</span>
+        <span class="label">Total Clients</span>
+    </div>
+</div>
+
+<div class="client-stats">
+    <div class="stat-badge">
+        <i class="fas fa-user-clock"></i>
+        <span>New This Month: {{ new_clients_this_month }}</span>
+    </div>
+    <div class="stat-badge">
+        <i class="fas fa-calendar-check"></i>
+        <span>Active: {{ active_clients }}</span>
+    </div>
+</div>
+
+{% if clients %}
+<table class="admin-table">
+    <thead>
+        <tr>
+            <th>Client</th>
+            <th>Contact</th>
+            <th>Details</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for client in clients %}
+        <tr>
+            <td>
+                <div class="client-info">
+                    <div class="client-avatar">
+                        {{ client.user.get_full_name|slice:":1" }}
+                    </div>
+                    <div>
+                        <div class="client-name">{{ client.user.get_full_name }}</div>
+                        <small class="text-muted">Joined: {{ client.user.date_joined|date:"M Y" }}</small>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="client-contact">
+                    <div>{{ client.user.email }}</div>
+                    <div>{{ client.phone|default:"Phone not provided" }}</div>
+                </div>
+            </td>
+            <td>
+                <div class="client-details">
+                    <div>DOB: {{ client.date_of_birth|date:"M d, Y" }}</div>
+                    <div class="age-badge">Age: {{ client.age|default:"N/A" }}</div>
+                </div>
+            </td>
+            <td>
+                <a href="{% url 'client_detail' client.id %}" class="btn-view">
+                    <i class="fas fa-eye"></i> View
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="empty-state">
+    <i class="fas fa-users"></i>
+    <h3>No Clients Found</h3>
+    <p>There are no client records available yet.</p>
+</div>
+{% endif %}
+
+<script>
+    // Add animation to table rows
+    document.addEventListener('DOMContentLoaded', function() {
+        const tableRows = document.querySelectorAll('.admin-table tbody tr');
+        tableRows.forEach((row, index) => {
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(10px)';
+            row.style.animation = `fadeInUp 0.4s ease forwards ${index * 0.05}s`;
+        });
+    });
+</script>
+
+<style>
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .total-clients {
+        text-align: right;
+    }
+    
+    .total-clients .count {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #fd79a8;
+    }
+    
+    .total-clients .label {
+        font-size: 0.85rem;
+        color: #636e72;
+    }
+    
+    .client-name {
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+    
+    .text-muted {
+        color: #b2bec3 !important;
+        font-size: 0.8rem;
+    }
+    
+    .client-contact div:first-child {
+        margin-bottom: 4px;
+    }
+</style>
+{% endblock %}

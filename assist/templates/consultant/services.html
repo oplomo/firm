@@ -1,0 +1,693 @@
+{% extends 'consultant/base.html' %}
+
+{% block title %}My Services{% endblock %}
+
+{% block content %}
+
+
+
+<div class="services-container">
+    <div class="card">
+        <div class="card-header">
+            <h5>
+                <i class="fas fa-concierge-bell me-2"></i>
+                My Services
+            </h5>
+            <button class="add-service-btn" onclick="openModal('addServiceModal')">
+                <i class="fas fa-plus me-2"></i>
+                Add Service
+            </button>
+        </div>
+        
+        <div class="card-body">
+            {% if services %}
+                <div class="row">
+                    {% for service in services %}
+                        <div class="col-lg-6 mb-4">
+                            <div class="service-card">
+                                <div class="service-card-header">
+                                    <h5>{{ service.name }}</h5>
+                                </div>
+                                <div class="service-card-body">
+                                    <div class="service-description">
+                                        {{ service.description|linebreaks }}
+                                    </div>
+                                    <div class="service-meta">
+                                        <div>
+                                            <span class="text-muted small">Price:</span>
+                                            <span class="service-price">${{ service.price }}</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-muted small">Duration:</span>
+                                            <span class="service-duration">{{ service.duration }} minutes</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="service-actions">
+                                    <button class="btn-outline-primary" 
+                                            onclick="openModal('editServiceModal{{ service.id }}')">
+                                        <i class="fas fa-edit me-1"></i> Edit
+                                    </button>
+                                    <button class="btn-outline-danger"
+                                            onclick="openModal('deleteServiceModal{{ service.id }}')">
+                                        <i class="fas fa-trash-alt me-1"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Edit Service Modal -->
+                        <div class="modal" id="editServiceModal{{ service.id }}">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        <i class="fas fa-edit me-2"></i>
+                                        Edit Service
+                                    </h5>
+                                    <button type="button" class="close-btn" onclick="closeModal()">&times;</button>
+                                </div>
+                                <form method="post" action="{% url 'edit_service' service.id %}">
+                                    {% csrf_token %}
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="name{{ service.id }}">Service Name</label>
+                                            <input type="text" id="name{{ service.id }}" 
+                                                   name="name" value="{{ service.name }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="description{{ service.id }}">Description</label>
+                                            <textarea id="description{{ service.id }}" 
+                                                      name="description" rows="4" required>{{ service.description }}</textarea>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="price{{ service.id }}">Price ($)</label>
+                                                <input type="number" id="price{{ service.id }}" 
+                                                       name="price" value="{{ service.price }}" step="0.01" min="0" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="duration{{ service.id }}">Duration (minutes)</label>
+                                                <input type="number" id="duration{{ service.id }}" 
+                                                       name="duration" value="{{ service.duration }}" min="15" step="15" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+                                        <button type="submit" class="btn-primary">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Delete Service Modal -->
+                        <div class="modal" id="deleteServiceModal{{ service.id }}">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title text-danger">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        Confirm Deletion
+                                    </h5>
+                                    <button type="button" class="close-btn" onclick="closeModal()">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="delete-confirmation">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <h5>Delete "{{ service.name }}"?</h5>
+                                        <p class="text-muted">This action cannot be undone. Any future appointments for this service will need to be reassigned.</p>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+                                    <form method="post" action="{% url 'delete_service' service.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-danger">
+                                            <i class="fas fa-trash-alt me-1"></i> Delete Service
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-services">
+                    <i class="fas fa-concierge-bell"></i>
+                    <h4 class="mb-3">No Services Added Yet</h4>
+                    <p class="text-muted mb-4">Create your first service to allow clients to book appointments with you.</p>
+                    <button class="btn-primary" onclick="openModal('addServiceModal')">
+                        <i class="fas fa-plus me-2"></i> Add Your First Service
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Add Service Modal -->
+<div class="modal" id="addServiceModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">
+                <i class="fas fa-plus-circle me-2"></i>
+                Add New Service
+            </h5>
+            <button type="button" class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <form method="post" action="{% url 'add_service' %}">
+            {% csrf_token %}
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="name">Service Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="4" required></textarea>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="price">Price ($)</label>
+                        <input type="number" id="price" 
+                               name="price" step="0.01" min="0" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="duration">Duration (minutes)</label>
+                        <input type="number" id="duration" 
+                               name="duration" min="15" step="15" required>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn-primary">Add Service</button>
+            </div>
+        </form>
+    </div>
+</div>
+<style>
+    :root {
+        --primary: #4361ee;
+        --primary-dark: #3a56d4;
+        --secondary: #3f37c9;
+        --accent: #4cc9f0;
+        --success: #28a745;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --gray: #6c757d;
+        --light-gray: #e9ecef;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+        --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+        --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+        --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    /* Base Styles */
+    .services-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+        transition: var(--transition);
+    }
+
+    .card:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+    }
+
+    .card-header h5 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+
+    .card-header h5 i {
+        margin-right: 0.75rem;
+        font-size: 1.1em;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    /* Add Service Button */
+    .add-service-btn {
+        background: white;
+        color: var(--primary);
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        transition: var(--transition);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .add-service-btn:hover {
+        background: rgba(255,255,255,0.9);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .add-service-btn i {
+        margin-right: 0.5rem;
+    }
+
+    /* Service Cards Grid */
+    .row {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .service-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        border: 1px solid var(--light-gray);
+    }
+
+    .service-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+        border-color: rgba(67, 97, 238, 0.2);
+    }
+
+    .service-card-header {
+        padding: 1.25rem;
+        background: var(--light);
+        border-bottom: 1px solid var(--light-gray);
+    }
+
+    .service-card-header h5 {
+        margin: 0;
+        color: var(--dark);
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .service-card-body {
+        padding: 1.25rem;
+    }
+
+    .service-description {
+        color: var(--gray);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+
+    .service-meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .service-meta div {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .text-muted {
+        color: var(--gray);
+        font-size: 0.85rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .service-price {
+        font-weight: 600;
+        color: var(--primary);
+        font-size: 1.1rem;
+    }
+
+    .service-duration {
+        font-weight: 500;
+        color: var(--dark);
+    }
+
+    .service-actions {
+        padding: 1rem;
+        border-top: 1px solid var(--light-gray);
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    /* Button Styles */
+    .btn-outline-primary, 
+    .btn-outline-danger,
+    .btn-primary,
+    .btn-secondary,
+    .btn-danger {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-outline-primary {
+        background: transparent;
+        border: 1px solid var(--primary);
+        color: var(--primary);
+    }
+
+    .btn-outline-primary:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .btn-outline-danger {
+        background: transparent;
+        border: 1px solid var(--danger);
+        color: var(--danger);
+    }
+
+    .btn-outline-danger:hover {
+        background: var(--danger);
+        color: white;
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        border: 1px solid var(--primary);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        border-color: var(--primary-dark);
+    }
+
+    .btn-secondary {
+        background: var(--gray);
+        border: 1px solid var(--gray);
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+        border-color: #5a6268;
+    }
+
+    .btn-danger {
+        background: var(--danger);
+        border: 1px solid var(--danger);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #c82333;
+        border-color: #bd2130;
+    }
+
+    /* Empty State */
+    .empty-services {
+        text-align: center;
+        padding: 3rem 1rem;
+    }
+
+    .empty-services i {
+        font-size: 3rem;
+        color: var(--light-gray);
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-services h4 {
+        color: var(--dark);
+        margin-bottom: 1rem;
+    }
+
+    .empty-services p {
+        color: var(--gray);
+        max-width: 500px;
+        margin: 0 auto 2rem;
+        line-height: 1.6;
+    }
+
+    /* Modal Styles */
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        padding: 1rem;
+    }
+
+    .modal.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .modal.show .modal-content {
+        transform: translateY(0);
+    }
+
+    .modal-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--light-gray);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h5 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+
+    .modal-header h5 i {
+        margin-right: 0.75rem;
+        color: var(--primary);
+    }
+
+    .modal-header.text-danger h5 i {
+        color: var(--danger);
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--gray);
+        cursor: pointer;
+        transition: var(--transition);
+        padding: 0.25rem;
+    }
+
+    .close-btn:hover {
+        color: var(--danger);
+        transform: rotate(90deg);
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .mb-3 {
+        margin-bottom: 1.5rem;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--dark);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--light-gray);
+        border-radius: 6px;
+        font-size: 1rem;
+        transition: var(--transition);
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    textarea:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+
+    textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -0.75rem;
+    }
+
+    .col-md-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+        padding: 0 0.75rem;
+    }
+
+    .modal-footer {
+        padding: 1.25rem 1.5rem;
+        border-top: 1px solid var(--light-gray);
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+    }
+
+    /* Delete Confirmation */
+    .delete-confirmation {
+        text-align: center;
+        padding: 1rem 0;
+    }
+
+    .delete-confirmation i {
+        font-size: 3rem;
+        color: var(--danger);
+        margin-bottom: 1.5rem;
+    }
+
+    .delete-confirmation h5 {
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .delete-confirmation p {
+        color: var(--gray);
+        max-width: 400px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .service-card {
+        animation: fadeIn 0.5s ease forwards;
+        opacity: 0;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .row {
+            grid-template-columns: 1fr;
+        }
+        
+        .col-md-6 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+        
+        .service-meta {
+            grid-template-columns: 1fr;
+        }
+        
+        .modal-content {
+            max-height: 85vh;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .modal-footer {
+            flex-direction: column;
+        }
+        
+        .modal-footer .btn {
+            width: 100%;
+        }
+    }
+</style>
+<script>
+    // Modal functions
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+    }
+    
+    function closeModal() {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            modal.classList.remove('show');
+        });
+        document.body.style.overflow = ''; // Restore scrolling
+    }
+    
+    // Close modal when clicking outside content
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+            closeModal();
+        }
+    });
+    
+    // Add animation to service cards
+    document.addEventListener('DOMContentLoaded', function() {
+        const serviceCards = document.querySelectorAll('.service-card');
+        serviceCards.forEach((card, index) => {
+            card.style.animation = `fadeIn 0.5s ease forwards ${index * 0.1}s`;
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Base Styles */
+    :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3f37c9;
+        --accent-color: #4cc9f0;
+        --light-color: #f8f9fa;
+        --dark-color: #212529;
+        --success-color: #4ad66d;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+    }
+    
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f7ff;
+        color: var(--dark-color);
+        line-height: 1.6;
+    }
+    
+    h1 {
+        text-align: center;
+        margin: 2rem 0;
+        color: var(--secondary-color);
+        font-size: 2.5rem;
+        font-weight: 700;
+        position: relative;
+        padding-bottom: 1rem;
+    }
+    
+    h1::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        border-radius: 2px;
+    }
+    
+    /* Consultant Grid */
+    .consultant-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    /* Consultant Card */
+    .consultant-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .consultant-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .consultant-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(76, 201, 240, 0.1) 100%);
+        z-index: -1;
+        opacity: 0;
+        transition: var(--transition);
+    }
+    
+    .consultant-card:hover::before {
+        opacity: 1;
+    }
+    
+    .consultant-card img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        border-bottom: 4px solid var(--primary-color);
+        transition: var(--transition);
+    }
+    
+    .consultant-card:hover img {
+        transform: scale(1.05);
+        border-bottom-color: var(--accent-color);
+    }
+    
+    .consultant-card-content {
+        padding: 1.5rem;
+    }
+    
+    .consultant-card h2 {
+        color: var(--secondary-color);
+        margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+    }
+    
+    .consultant-card p {
+        color: #555;
+        margin-bottom: 0.8rem;
+        font-size: 0.95rem;
+    }
+    
+    .consultant-card p:last-of-type {
+        color: var(--primary-color);
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .consultant-card a {
+        display: inline-block;
+        margin-top: 1rem;
+        padding: 0.6rem 1.2rem;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        text-decoration: none;
+        border-radius: 30px;
+        font-weight: 500;
+        transition: var(--transition);
+        box-shadow: 0 2px 5px rgba(67, 97, 238, 0.3);
+    }
+    
+    .consultant-card a:hover {
+        background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+    }
+    
+    /* Expertise Tag */
+    .expertise-tag {
+        display: inline-block;
+        background-color: var(--accent-color);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .consultant-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            padding: 1rem;
+        }
+        
+        h1 {
+            font-size: 2rem;
+        }
+    }
+    
+    /* Animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .consultant-card {
+        animation: fadeIn 0.6s ease forwards;
+        opacity: 0;
+    }
+    
+    .consultant-card:nth-child(1) { animation-delay: 0.1s; }
+    .consultant-card:nth-child(2) { animation-delay: 0.2s; }
+    .consultant-card:nth-child(3) { animation-delay: 0.3s; }
+    .consultant-card:nth-child(4) { animation-delay: 0.4s; }
+    .consultant-card:nth-child(5) { animation-delay: 0.5s; }
+    .consultant-card:nth-child(6) { animation-delay: 0.6s; }
+    /* Add more if you have more cards */
+</style>
+
+<h1>Available Consultants</h1>
+<div class="consultant-grid">
+    {% for consultant in consultants %}
+    <div class="consultant-card">
+        <img src="{{ consultant.photo.url }}" alt="{{ consultant.user.get_full_name }}">
+        <div class="consultant-card-content">
+            <h2>{{ consultant.user.get_full_name }}</h2>
+            <span class="expertise-tag">{{ consultant.expertise }}</span>
+            <p>${{ consultant.hourly_rate }}/hour</p>
+            <a href="{% url 'consultant_detail' consultant.pk %}">View Availability</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,285 @@
+{% extends 'admin_dashboard/base.html' %}
+{% block admin_content %}
+<style>
+    /* Manage Services Specific Styles */
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(108, 92, 231, 0.1);
+    }
+
+    .admin-header h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2d3436;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .admin-header h1::before {
+        content: "✨";
+        margin-right: 12px;
+        font-size: 1.2rem;
+    }
+
+    /* Add New Button */
+    .btn-add {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(to right, #00b894, #55efc4);
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+    }
+
+    .btn-add:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 184, 148, 0.4);
+        background: linear-gradient(to right, #00b894, #00cec9);
+    }
+
+    .btn-add i {
+        margin-right: 8px;
+    }
+
+    /* Table Styles */
+    .admin-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .admin-table thead {
+        background: linear-gradient(to right, #00b894, #55efc4);
+        color: white;
+    }
+
+    .admin-table th {
+        padding: 1rem 1.5rem;
+        text-align: left;
+        font-weight: 500;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .admin-table td {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #f1f1f1;
+        color: #2d3436;
+        vertical-align: top;
+    }
+
+    .admin-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .admin-table tr:hover td {
+        background: rgba(0, 184, 148, 0.03);
+    }
+
+    /* Service Name */
+    .service-name {
+        font-weight: 600;
+        color: #2d3436;
+    }
+
+    /* Service Description */
+    .service-description {
+        color: #636e72;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    /* Consultant Info */
+    .consultant-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .consultant-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: #6c5ce7;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-edit, .btn-delete {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .btn-edit {
+        background: rgba(108, 92, 231, 0.1);
+        color: #6c5ce7;
+        border: 1px solid rgba(108, 92, 231, 0.2);
+    }
+
+    .btn-edit:hover {
+        background: rgba(108, 92, 231, 0.2);
+    }
+
+    .btn-delete {
+        background: rgba(214, 48, 49, 0.1);
+        color: #d63031;
+        border: 1px solid rgba(214, 48, 49, 0.2);
+    }
+
+    .btn-delete:hover {
+        background: rgba(214, 48, 49, 0.2);
+    }
+
+    .btn-edit i, .btn-delete i {
+        margin-right: 5px;
+        font-size: 0.8rem;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #636e72;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #b2bec3;
+        margin-bottom: 1rem;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .admin-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .admin-table {
+            display: block;
+            overflow-x: auto;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+        
+        .btn-edit, .btn-delete {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="admin-header">
+    <h1>Manage Services</h1>
+    <a href="{% url 'add_service' %}" class="btn-add">
+        <i class="fas fa-plus"></i> Add New Service
+    </a>
+</div>
+
+{% if services %}
+<table class="admin-table">
+    <thead>
+        <tr>
+            <th>Service</th>
+            <th>Description</th>
+            <th>Consultant</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for service in services %}
+        <tr>
+            <td class="service-name">{{ service.name }}</td>
+            <td class="service-description">{{ service.description|truncatewords:15 }}</td>
+            <td>
+                <div class="consultant-info">
+                    <div class="consultant-avatar">
+                        {{ service.consultant.user.get_full_name|slice:":1" }}
+                    </div>
+                    {{ service.consultant.user.get_full_name }}
+                </div>
+            </td>
+            <td>
+                <div class="action-buttons">
+                    <a href="#" class="btn-edit">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a href="#" class="btn-delete">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </a>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="empty-state">
+    <i class="fas fa-concierge-bell"></i>
+    <h3>No Services Available</h3>
+    <p>You haven't created any services yet. Click the button above to add one.</p>
+</div>
+{% endif %}
+
+<script>
+    // Add animation to table rows
+    document.addEventListener('DOMContentLoaded', function() {
+        const tableRows = document.querySelectorAll('.admin-table tbody tr');
+        tableRows.forEach((row, index) => {
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(10px)';
+            row.style.animation = `fadeInUp 0.4s ease forwards ${index * 0.05}s`;
+        });
+    });
+</script>
+
+<style>
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}

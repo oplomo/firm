@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container" style="max-width: 600px; margin: 40px auto; font-family: 'Segoe UI', Roboto, sans-serif;">
+    <div style="background: linear-gradient(135deg, #6e8efb, #a777e3); padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+        <h2 style="color: white; text-align: center; margin-bottom: 25px; font-weight: 600;">Welcome Back</h2>
+        
+        <form method="POST" style="background: white; padding: 30px; border-radius: 10px;">
+            {% csrf_token %}
+            
+            <div class="form-group" style="margin-bottom: 20px;">
+                {% for field in form %}
+                <label for="{{ field.id_for_label }}" style="display: block; margin-bottom: 8px; color: #555; font-weight: 500;">
+                    {{ field.label }}
+                </label>
+                {{ field }}
+                <div style="height: 16px;"></div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #6e8efb, #a777e3); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                Login
+            </button>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <p style="margin: 10px 0; color: #777;">
+                    <a href="{% url 'password_reset' %}" style="color: #6e8efb; text-decoration: none;">Forgot password?</a>
+                </p>
+                <p style="margin: 10px 0; color: #777;">
+                    <a href="{% url 'register' %}" style="color: #6e8efb; text-decoration: none;">Don't have an account? Register</a>
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+    
+    input:focus {
+        border-color: #a777e3;
+        box-shadow: 0 0 0 3px rgba(167, 119, 227, 0.2);
+        outline: none;
+    }
+    
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(110, 142, 251, 0.4);
+    }
+    
+    .errorlist {
+        color: #e74c3c;
+        margin-top: 5px;
+        font-size: 14px;
+        list-style: none;
+        padding-left: 0;
+    }
+</style>
+{% endblock %}

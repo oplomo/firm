@@ -1,0 +1,592 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ClimbUp Solutions - Our Expert Consultants{% endblock %}
+
+{% block content %}
+
+<!-- Consultants Hero Section -->
+<section class="consultants-hero py-5" style="background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/hro.png' %}');">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 text-white mb-4">Meet Our Expert Consultants</h1>
+                <p class="lead text-light">Professionals dedicated to helping you achieve your goals and overcome challenges</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Add this near the sorting dropdown in your template -->
+<div class="row mb-4">
+    <div class="col-md-8 mx-auto">
+        <form method="get" class="search-form">
+            <div class="input-group">
+                <input type="text" class="form-control" name="search" placeholder="Search consultants by name, expertise, bio or services..." value="{{ search_query }}">
+                <button class="btn btn-primary" type="submit">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+            
+            <!-- Hidden fields to maintain other filters -->
+            {% if sort_by %}
+                <input type="hidden" name="sort" value="{{ sort_by }}">
+            {% endif %}
+            {% if selected_expertise %}
+                <input type="hidden" name="expertise" value="{{ selected_expertise }}">
+            {% endif %}
+            {% if selected_service %}
+                <input type="hidden" name="service" value="{{ selected_service }}">
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- Add filter dropdowns if you want them -->
+<div class="row mb-3">
+    <div class="col-md-6">
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="expertiseDropdown" data-bs-toggle="dropdown">
+                Filter by Expertise: {% if selected_expertise %}{{ selected_expertise }}{% else %}All{% endif %}
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="expertiseDropdown">
+                <li><a class="dropdown-item" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}{% if selected_service %}service={{ selected_service }}{% endif %}">All</a></li>
+                {% for expertise in expertise_list %}
+                <li><a class="dropdown-item" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}expertise={{ expertise }}{% if selected_service %}&service={{ selected_service }}{% endif %}">{{ expertise }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="serviceDropdown" data-bs-toggle="dropdown">
+                Filter by Service: {% if selected_service %}{{ selected_service }}{% else %}All{% endif %}
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="serviceDropdown">
+                <li><a class="dropdown-item" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}{% if selected_expertise %}expertise={{ selected_expertise }}{% endif %}">All</a></li>
+                {% for service in service_list %}
+                <li><a class="dropdown-item" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}{% if selected_expertise %}expertise={{ selected_expertise }}&{% endif %}service={{ service }}">{{ service }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- All Consultants Section -->
+<section class="all-consultants py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12 d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">Our Consulting Team</h2>
+            
+                </div>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% if consultants %}
+                {% for consultant in consultants %}
+                <div class="col-lg-3 col-md-6">
+                    <div class="card consultant-card h-100">
+                        <div class="consultant-image">
+                            {% if consultant.photo %}
+                            <img src="{{ consultant.photo.url }}" class="card-img-top" alt="{{ consultant.user.get_full_name }}">
+                            {% else %}
+                            <img src="{% static 'images/consultant-placeholder.jpg' %}" class="card-img-top" alt="Consultant placeholder">
+                            {% endif %}
+                            <div class="expertise-badge">{{ consultant.expertise|truncatewords:2 }}</div>
+                            {% if consultant.is_active %}
+                            <div class="availability-status available">Available</div>
+                            {% else %}
+                            <div class="availability-status unavailable">Currently Unavailable</div>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <h3 class="consultant-name">{{ consultant.user.get_full_name }}</h3>
+                            <p class="consultant-title">{{ consultant.expertise }}</p>
+                           
+                            <p class="consultant-bio">{{ consultant.bio|truncatewords:20 }}</p>
+                            <div class="consultant-rate">
+                                <span>kes-{{ consultant.hourly_rate }} per session</span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <div class="d-grid gap-2">
+                                {% if consultant.is_active %}
+                                <a href="{% url "create_appointment" consultant.id %}" class="btn btn-primary">Book Now</a>
+                                {% else %}
+                                <button class="btn btn-secondary" disabled>Not Available</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center py-5">
+                    <h3 class="text-muted">No consultants found matching your criteria</h3>
+                    <p>Try adjusting your filters or <a href="{% url 'consultants' %}">view all consultants</a></p>
+                </div>
+            {% endif %}
+        </div>
+        
+        {% if is_paginated %}
+        <div class="row mt-5">
+            <div class="col-12">
+                <nav aria-label="Consultant pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_expertise %}&expertise={{ selected_expertise }}{% endif %}{% if selected_service %}&service={{ selected_service }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">Previous</a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                            <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if selected_expertise %}&expertise={{ selected_expertise }}{% endif %}{% if selected_service %}&service={{ selected_service }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">{{ num }}</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_expertise %}&expertise={{ selected_expertise }}{% endif %}{% if selected_service %}&service={{ selected_service }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">Next</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Why Choose Our Consultants Section -->
+<section class="why-choose py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <h2 class="mb-4">Why Choose Our Consultants</h2>
+                <div class="features-list">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-certificate"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h4>Verified Expertise</h4>
+                            <p>All consultants undergo rigorous vetting to ensure top-quality guidance</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h4>Proven Results</h4>
+                            <p>Our consultants have track records of helping clients achieve success</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h4>Personalized Approach</h4>
+                            <p>Tailored strategies that address your unique situation and goals</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="testimonial-highlight p-4 bg-white rounded shadow">
+                    <blockquote class="blockquote">
+                        <p>"Working with my ClimbUp consultant completely transformed my career trajectory. Their insights and guidance helped me secure a promotion I'd been working toward for years."</p>
+                        <footer class="blockquote-f mt-3">Sarah K., <cite>Marketing Director</cite></footer>
+                    </blockquote>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="consultants-cta py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="mb-4">Ready to Find Your Perfect Consultant?</h2>
+        <p class="lead mb-5">Take the first step toward achieving your goals with expert guidance</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'contact' %}" class="btn btn-outline-light btn-lg">Contact Our Team</a>
+        </div>
+    </div>
+</section>
+   
+
+<style>
+    /* Global Styles */
+    :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3f37c9;
+        --accent-color: #4cc9f0;
+        --dark-color: #1a1a2e;
+        --light-color: #f8f9fa;
+        --success-color: #4caf50;
+        --warning-color: #ff9800;
+        --danger-color: #f44336;
+    }
+    
+    body {
+        font-family: 'Poppins', sans-serif;
+        color: #333;
+        line-height: 1.6;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+    }
+    
+    /* Hero Section */
+    .consultants-hero {
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .consultants-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(67, 97, 238, 0.8) 0%, rgba(63, 55, 201, 0.9) 100%);
+    }
+    
+    .consultants-hero h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        position: relative;
+        animation: fadeInDown 1s ease;
+    }
+    
+    .consultants-hero p {
+        font-size: 1.5rem;
+        position: relative;
+        animation: fadeInUp 1s ease;
+    }
+    
+    /* Search and Filter Section */
+    .search-form .input-group {
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        border-radius: 50px;
+        overflow: hidden;
+    }
+    
+    .search-form .form-control {
+        border: none;
+        padding: 15px 25px;
+        font-size: 1rem;
+    }
+    
+    .search-form .btn {
+        padding: 15px 30px;
+        border-radius: 0 50px 50px 0;
+        font-weight: 600;
+    }
+    
+    .dropdown-toggle {
+        padding: 10px 20px;
+        border-radius: 50px !important;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .dropdown-toggle:hover {
+        background-color: var(--primary-color) !important;
+        color: white !important;
+    }
+    
+    /* Consultant Cards */
+    .consultant-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .consultant-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(67, 97, 238, 0.15);
+    }
+    
+    .consultant-image {
+        position: relative;
+        overflow: hidden;
+        height: 250px;
+    }
+    
+    .consultant-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .consultant-card:hover .consultant-image img {
+        transform: scale(1.05);
+    }
+    
+    .expertise-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background-color: var(--accent-color);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .availability-status {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .available {
+        background-color: var(--success-color);
+    }
+    
+    .unavailable {
+        background-color: var(--danger-color);
+    }
+    
+    .card-body {
+        padding: 25px;
+    }
+    
+    .consultant-name {
+        font-size: 1.4rem;
+        margin-bottom: 5px;
+        color: var(--dark-color);
+    }
+    
+    .consultant-title {
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+    }
+    
+    .consultant-bio {
+        color: #666;
+        font-size: 0.95rem;
+        margin-bottom: 20px;
+    }
+    
+    .consultant-rate {
+        font-weight: 700;
+        color: var(--dark-color);
+        font-size: 1.1rem;
+    }
+    
+    .card-footer {
+        border-top: none;
+        padding: 0 25px 25px;
+    }
+    
+    /* Features Section */
+    .why-choose {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .why-choose::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('{% static "images/dots-bg.png" %}') repeat;
+        opacity: 0.05;
+        z-index: 0;
+    }
+    
+    .why-choose h2 {
+        position: relative;
+        color: var(--dark-color);
+    }
+    
+    .feature-item {
+        display: flex;
+        margin-bottom: 30px;
+        position: relative;
+    }
+    
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-right: 20px;
+        flex-shrink: 0;
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.2);
+    }
+    
+    .feature-content h4 {
+        color: var(--dark-color);
+        margin-bottom: 10px;
+    }
+    
+    .testimonial-highlight {
+        position: relative;
+        border-left: 4px solid var(--primary-color);
+        transition: all 0.3s ease;
+    }
+    
+    .testimonial-highlight:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+    }
+    
+    blockquote {
+        font-style: italic;
+        color: #555;
+        font-size: 1.1rem;
+    }
+    
+    .blockquote-footer {
+        font-size: 0.9rem;
+    }
+    
+    /* CTA Section */
+    .consultants-cta {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .consultants-cta::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('{% static "images/pattern.png" %}') repeat;
+        opacity: 0.1;
+    }
+    
+    .consultants-cta h2 {
+        position: relative;
+        font-size: 2.5rem;
+    }
+    
+    .btn-outline-light {
+        border-width: 2px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-light:hover {
+        background-color: white;
+        color: var(--primary-color) !important;
+    }
+    
+    /* Pagination */
+    .pagination .page-item .page-link {
+        color: var(--primary-color);
+        border: none;
+        margin: 0 5px;
+        border-radius: 50px !important;
+        padding: 8px 16px;
+        transition: all 0.3s ease;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .pagination .page-item:not(.active) .page-link:hover {
+        background-color: rgba(67, 97, 238, 0.1);
+    }
+    
+    /* Animations */
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 992px) {
+        .consultants-hero h1 {
+            font-size: 2.5rem;
+        }
+        
+        .consultants-hero p {
+            font-size: 1.2rem;
+        }
+        
+        .consultant-card {
+            margin-bottom: 30px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .consultants-hero h1 {
+            font-size: 2rem;
+        }
+        
+        .feature-item {
+            flex-direction: column;
+        }
+        
+        .feature-icon {
+            margin-bottom: 15px;
+        }
+    }
+</style>
+{% endblock %}

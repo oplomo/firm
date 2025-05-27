@@ -1,0 +1,278 @@
+{% extends 'consultant/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    /* Dashboard Specific Styles */
+    .welcome-header {
+        color: var(--primary-color);
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        position: relative;
+        padding-bottom: 0.5rem;
+    }
+    
+    .welcome-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        border-radius: 2px;
+    }
+    
+    .card-header h5 {
+        font-weight: 600;
+        color: var(--dark-color);
+        margin: 0;
+    }
+    
+    .list-group-item {
+        border-radius: 8px !important;
+        margin-bottom: 10px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .list-group-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .list-group-item-info {
+        background-color: rgba(76, 201, 240, 0.1);
+        border-left: 3px solid var(--accent-color);
+    }
+    
+    .quick-action-btn {
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        padding: 0.75rem;
+        text-align: center;
+        font-weight: 500;
+    }
+    
+    .quick-action-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-outline-primary {
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: var(--primary-color);
+    }
+    
+    .btn-outline-secondary {
+        color: #6c757d;
+        border-color: #6c757d;
+    }
+    
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        color: white;
+    }
+    
+    .btn-outline-success {
+        color: var(--success-color);
+        border-color: var(--success-color);
+    }
+    
+    .btn-outline-success:hover {
+        background-color: var(--success-color);
+        color: white;
+    }
+    
+    .notification-time {
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: #dee2e6;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-8">
+        <h2 class="welcome-header">Welcome, {{ consultant.user.get_full_name }}</h2>
+        
+        <div class="card mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-calendar-day me-2"></i>Upcoming Appointments</h5>
+                <span class="badge bg-primary rounded-pill">{{ upcoming_appointments|length }}</span>
+            </div>
+            <div class="card-body">
+                {% if upcoming_appointments %}
+                    <div class="list-group">
+                        {% for appointment in upcoming_appointments %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between align-items-start">
+                                    <div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="avatar-sm me-3">
+                                                <i class="fas fa-user-circle fa-2x text-muted"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">{{ appointment.client.user.get_full_name }}</h6>
+                                                <small class="text-muted">
+                                                    {% if appointment.service %}
+                                                        {{ appointment.service.name }}
+                                                    {% else %}
+                                                        Custom Appointment
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="ms-5 ps-3">
+                                            <span class="badge bg-light text-dark me-2">
+                                                <i class="fas fa-clock me-1"></i>
+                                                {{ appointment.start_time|date:"M d, Y H:i" }}
+                                            </span>
+                                            <span class="badge bg-light text-dark">
+                                                <i class="fas fa-video me-1"></i>
+                                                {{ appointment.get_mode_display }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i>View Details</a></li>
+                                            <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i>Reschedule</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-times me-2"></i>Cancel</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <a href="{% url 'consultant_appointments' %}" class="btn btn-primary mt-3">
+                        <i class="fas fa-list me-1"></i> View All Appointments
+                    </a>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <h5>No Upcoming Appointments</h5>
+                        <p>Your schedule is clear for now. Check back later or update your availability.</p>
+                        <a href="{% url 'consultant_availability' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-1"></i> Set Availability
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="{% url 'consultant_availability' %}" class="quick-action-btn btn btn-outline-primary d-flex align-items-center mb-3">
+                    <i class="fas fa-clock fa-lg me-3"></i>
+                    <div>
+                        <div class="fw-bold">Update Availability</div>
+                        <small class="text-muted">Set your working hours</small>
+                    </div>
+                </a>
+                
+                <a href="{% url 'update_consultant_profile' %}" class="quick-action-btn btn btn-outline-secondary d-flex align-items-center mb-3">
+                    <i class="fas fa-user-edit fa-lg me-3"></i>
+                    <div>
+                        <div class="fw-bold">Update Profile</div>
+                        <small class="text-muted">Edit your public profile</small>
+                    </div>
+                </a>
+                
+                <a href="{% url 'consultant_services' %}" class="quick-action-btn btn btn-outline-success d-flex align-items-center">
+                    <i class="fas fa-concierge-bell fa-lg me-3"></i>
+                    <div>
+                        <div class="fw-bold">Manage Services</div>
+                        <small class="text-muted">Add/edit your services</small>
+                    </div>
+                </a>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-bell me-2"></i>Recent Notifications</h5>
+                <a href="{% url 'consultant_notifications' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if notifications %}
+                    <div class="list-group">
+                        {% for notification in notifications %}
+                            <a href="#" class="list-group-item list-group-item-action {% if not notification.read %}list-group-item-info{% endif %}">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas 
+                                        {% if notification.notification_type == 'appointment' %}fa-calendar-check
+                                        {% elif notification.notification_type == 'message' %}fa-envelope
+                                        {% elif notification.notification_type == 'system' %}fa-info-circle
+                                        {% else %}fa-bell{% endif %} 
+                                        me-3 mt-1"></i>
+                                    <div>
+                                        <p class="mb-1">{{ notification.message }}</p>
+                                        <small class="notification-time">
+                                            <i class="far fa-clock me-1"></i>
+                                            {{ notification.created_at|timesince }} ago
+                                        </small>
+                                    </div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state py-3">
+                        <i class="fas fa-bell-slash"></i>
+                        <h5>No Notifications</h5>
+                        <p>You're all caught up!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Add animation to cards when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.animation = `fadeIn 0.5s ease forwards ${index * 0.1}s`;
+        });
+        
+        // Mark notifications as read when clicked
+        const notificationItems = document.querySelectorAll('.list-group-item-action');
+        notificationItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (this.classList.contains('list-group-item-info')) {
+                    this.classList.remove('list-group-item-info');
+                    // Here you would typically make an AJAX call to mark as read
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

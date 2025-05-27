@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ClimbUp Solutions - Our Services{% endblock %}
+
+{% block content %}
+<!-- Services Hero Section -->
+<section class="services-hero py-5" style="background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static 'images/im.png' %}');">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 text-white mb-4">Our Comprehensive Services</h1>
+                <p class="lead text-light">Expert solutions tailored to help you reach new heights in your professional journey</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Categories Section -->
+<section class="services-categories py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 mb-5">
+                <h2 class="text-center mb-4">Service Categories</h2>
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="#business" class="btn btn-outline-primary">Business Consulting</a>
+                    <a href="#career" class="btn btn-outline-primary">Career Development</a>
+                    <a href="#leadership" class="btn btn-outline-primary">Leadership Coaching</a>
+                    <a href="#strategy" class="btn btn-outline-primary">Strategic Planning</a>
+                    <a href="#personal" class="btn btn-outline-primary">Personal Growth</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- All Services Section -->
+<section class="all-services py-5">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="text-center mb-4">Explore Our Services</h2>
+                <div class="row g-4">
+                    {% for service in services %}
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card service-card h-100">
+                            <div class="card-body">
+                                <div class="service-icon mb-3">
+                                    <i class="{{ service.icon }}"></i>
+                                </div>
+                                <h3 class="card-title">{{ service.name }}</h3>
+                                <p class="card-text">{{ service.description }}</p>
+                                <div class="service-meta mt-auto">
+                                    <span class="badge bg-primary">{{ service.category }}</span>
+                                    <span class="service-price">From ${{ service.starting_price }}</span>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <a href="{% url 'service_detail' service.id %}" class="btn btn-primary w-100">Learn More</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center">
+                        <p class="lead">No services available at the moment. Please check back later.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Service Process Section -->
+<section class="service-process py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="mb-5">Our Consultation Process</h2>
+                <div class="process-steps">
+                    <div class="process-step">
+                        <div class="step-number">1</div>
+                        <h4>Initial Assessment</h4>
+                        <p>We evaluate your current situation and identify key challenges</p>
+                    </div>
+                    <div class="process-step">
+                        <div class="step-number">2</div>
+                        <h4>Strategy Development</h4>
+                        <p>Our experts create a customized plan for your needs</p>
+                    </div>
+                    <div class="process-step">
+                        <div class="step-number">3</div>
+                        <h4>Implementation</h4>
+                        <p>We guide you through executing the plan effectively</p>
+                    </div>
+                    <div class="process-step">
+                        <div class="step-number">4</div>
+                        <h4>Review & Adjust</h4>
+                        <p>Regular check-ins to ensure continued progress</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Consultant Matching Section -->
+<section class="consultant-matching py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="mb-4">Find Your Perfect Consultant Match</h2>
+                <p>Our unique matching system pairs you with the ideal consultant based on your specific needs, goals, and personality.</p>
+                <p>Each of our consultants brings specialized expertise to help you overcome challenges and achieve breakthroughs.</p>
+                <a href="{% url 'consultants' %}" class="btn btn-primary mt-3">Browse All Consultants</a>
+            </div>
+            <div class="col-lg-6">
+                <img src="{% static 'images/im.png' %}" alt="Consultant matching process" class="img-fluid rounded shadow">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="services-cta py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="mb-4">Ready to Transform Your Journey?</h2>
+        <p class="lead mb-5">Book your initial consultation today and take the first step toward your goals</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'contact' %}" class="btn btn-outline-light btn-lg">Ask Questions</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

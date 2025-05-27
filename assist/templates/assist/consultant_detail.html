@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="consultant-profile">
+    <div class="consultant-header">
+        <div class="consultant-photo">
+            {% if consultant.photo %}
+                <img src="{{ consultant.photo.url }}" alt="{{ consultant.user.get_full_name }}">
+            {% else %}
+                <div class="photo-placeholder">{{ consultant.user.get_full_name|first }}</div>
+            {% endif %}
+        </div>
+        <div class="consultant-info">
+            <h1>{{ consultant.user.get_full_name }}</h1>
+            <p class="expertise">{{ consultant.expertise }}</p>
+            <div class="rating">
+                <span class="stars">★★★★★</span>
+                <span class="reviews">({{ reviews.count }} reviews)</span>
+            </div>
+            <div class="rate">${{ consultant.hourly_rate }}/hour</div>
+        </div>
+    </div>
+
+    <div class="consultant-details">
+        <div class="bio-section">
+            <h2>About Me</h2>
+            <p>{{ consultant.bio }}</p>
+        </div>
+
+        <div class="services-section">
+            <h2>My Services</h2>
+            <div class="services-grid">
+                {% for service in services %}
+                <div class="service-card">
+                    <h3>{{ service.name }}</h3>
+                    <p>{{ service.description|truncatewords:30 }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="availability-section">
+            <h2>Availability</h2>
+            <div class="calendar-view">
+                <!-- This would be replaced with a dynamic calendar component -->
+                <div class="calendar-placeholder">
+                    {% for day in available_days %}
+                    <div class="day-slot">
+                        <strong>{{ day.day_of_week }}</strong>
+                        <span>{{ day.start_time }} - {{ day.end_time }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="booking-cta">
+            <a href="{% url 'book_appointment' consultant.pk %}" class="btn btn-primary btn-lg">
+                Book Consultation
+            </a>
+        </div>
+
+        <div class="reviews-section">
+            <h2>Client Reviews</h2>
+            {% if reviews %}
+                {% for review in reviews %}
+                <div class="review-card">
+                    <div class="review-header">
+                        <span class="client-name">{{ review.client.user.get_full_name }}</span>
+                        <span class="review-date">{{ review.created_at|date:"F Y" }}</span>
+                    </div>
+                    <div class="review-rating">Rating: {{ review.rating }}/5</div>
+                    <div class="review-content">
+                        {{ review.comment }}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>No reviews yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
